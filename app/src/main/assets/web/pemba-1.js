@@ -1,10 +1,10 @@
-/* Pemba Charge 1.0.0.1: electricity cost only.
-   No odometer, no trips, no Anytime log, no car claim, no petrol comparison.
-   The stored data format is unchanged (odometer is always 0), so Sheet script 2.2.5 keeps working
-   and no distance is ever stored or sent. Loaded after farrq-22.js. */
+/* Pemba Charge 2.0.0.1: electricity cost, with the odometer used ONLY in the Charge log.
+   No trips, no Anytime log, no car claim, no petrol comparison. The odometer is stored on charge entries only;
+   "before %" readings and the hidden start entry always keep odometer 0. The stored data format is unchanged,
+   so Sheet script 2.2.5 keeps working. Loaded after farrq-22.js. */
 (function(){
 'use strict';
-window.PEMBA_V=1;
+window.PEMBA_V=2;
 const EFF_DEFAULT=14.5;
 
 /* fixed settings: loss 10% (x1.10), estimated use for the km estimate */
@@ -12,10 +12,10 @@ if(!(S.effEst>0))S.effEst=EFF_DEFAULT;
 S.loss=10;
 if(typeof SET_FIELDS!=='undefined'&&!SET_FIELDS.includes('effEst'))SET_FIELDS.push('effEst');
 
-/* odometer can never enter the log: every save clears it */
+/* the odometer lives on charge entries only: every save clears it everywhere else */
 const _save=save;
 save=function(){
-  E.forEach(e=>{e.odo=0;delete e.carKm;});
+  E.forEach(e=>{e.odo=e.kind==='charge'&&+e.odo>0?+e.odo:0;delete e.carKm;});
   S.loss=10;
   _save();
 };
@@ -33,16 +33,23 @@ const kwh2=n=>(+n||0).toFixed(2);
 /* ---------- maths: charges only ---------- */
 derive=function(){
   const src=[...E].sort((a,b)=>a.ts-b.ts), out=[];
-  let prev=null, lastC=0;
+  let prev=null, lastC=0, lastCh=null;     /* lastCh: the previous real charge (its odometer and battery % after) */
   for(const e of src){
-    if(e.kind==='start'){prev=e;lastC=e.ts;continue;}
+    if(e.kind==='start'){prev=e;lastC=e.ts;lastCh=null;continue;}
     if(!prev){prev=e;continue;}
     if(e.kind==='trip'){prev=e;continue;}              /* "before %" reading: no distance, never shown */
     const stored=Math.max(0,(e.pct-prev.pct)/100*S.pack);
     const m=e.where!=='Station'&&window.measuredBetween?measuredBetween(lastC,e.ts):null;
     const wall=m?m.kwh:stored*(1+S.loss/100);
-    out.push({...e,type:'charge',stored,wall,cost:wall*rateOf(e.where),measured:!!m});
-    prev=e;lastC=e.ts;
+    /* distance and use since the previous charge, only when both charges have an odometer */
+    let km=0,used=0,cons=null;
+    if(lastCh&&lastCh.odo>0&&e.odo>lastCh.odo){
+      km=e.odo-lastCh.odo;
+      used=Math.max(0,(lastCh.pct-prev.pct)/100*S.pack);   /* prev.pct is this charge's "before %" */
+      if(used>0)cons=used/km*100;
+    }
+    out.push({...e,type:'charge',stored,wall,cost:wall*rateOf(e.where),measured:!!m,km,used,cons});
+    prev=e;lastC=e.ts;lastCh=e;
   }
   if(window.farrAutoRows){
     const au=farrAutoRows(src);
@@ -61,7 +68,10 @@ function totals(rows){
   const station=C.filter(c=>c.where==='Station').reduce((a,c)=>a+c.wall,0);
   const stationCost=C.filter(c=>c.where==='Station').reduce((a,c)=>a+c.cost,0);
   const km=kmOf(stored);
-  return {s,C,stored,eskom,eskomCost,solar,station,stationCost,km,perKm:km>0?s.cost/km:null};
+  const kmReal=C.reduce((a,r)=>a+(r.km||0),0), usedReal=C.reduce((a,r)=>a+(r.used||0),0);
+  const costReal=C.filter(r=>r.km>0).reduce((a,r)=>a+r.cost,0);
+  return {s,C,stored,eskom,eskomCost,solar,station,stationCost,km,perKm:km>0?s.cost/km:null,
+    kmReal,consReal:kmReal>0&&usedReal>0?usedReal/kmReal*100:null,perKmReal:kmReal>0?costReal/kmReal:null};
 }
 window.pembaTotals=totals;
 
@@ -105,12 +115,21 @@ renderHome=function(){
     row('Eskom',kwh2(t.eskom)+' kWh · '+money(t.eskomCost)),
     row('Solar (free)',kwh2(t.solar)+' kWh · '+money(0)),
     row('Station',kwh2(t.station)+' kWh · '+money(t.stationCost)),
-    row('Estimated distance (from kWh)','≈ '+t.km.toFixed(0)+' km'),
-    row('Estimated cost per km',t.perKm==null?'--':'R'+t.perKm.toFixed(2))
+    ...(t.kmReal>0?[
+      row('Driven (from the odometer)',t.kmReal.toFixed(0)+' km'),
+      row('Use',t.consReal==null?'--':t.consReal.toFixed(1)+' kWh/100 km'),
+      row('Cost per km',t.perKmReal==null?'--':'R'+t.perKmReal.toFixed(2))
+    ]:[
+      row('Estimated distance (from kWh)','≈ '+t.km.toFixed(0)+' km'),
+      row('Estimated cost per km',t.perKm==null?'--':'R'+t.perKm.toFixed(2))
+    ])
   ].join('');
 };
 
 /* ---------- Charge log: before % and after % ---------- */
+function lastCharge(){                                     /* the newest charge that has an odometer */
+  return [...E].filter(e=>e.kind==='charge'&&e.odo>0).sort((a,b)=>b.ts-a.ts)[0]||null;
+}
 function lastChargeTs(){
   const c=E.filter(e=>e.kind==='charge'||e.kind==='start').reduce((m,e)=>Math.max(m,e.ts),0);
   return c;
@@ -119,6 +138,8 @@ openCharge=function(){
   document.getElementById('cStamp').textContent=stamp(Date.now());
   document.getElementById('cBefore').value='';
   document.getElementById('cPct').value='';
+  const lc=lastCharge(), od=document.getElementById('cOdo');
+  od.value='';od.placeholder=lc?'Last charge: '+lc.odo+' km':'Odometer in km';
   setWhere('Home');
 };
 chargeCheck=function(){
@@ -126,23 +147,28 @@ chargeCheck=function(){
   if(isNaN(b)||b<0||b>99)return {ok:false,msg:'Enter the battery % before charging (0 to 99).'};
   if(isNaN(p)||p<1||p>100)return {ok:false,msg:'Enter the battery % after charging (1 to 100).'};
   if(p<=b)return {ok:false,msg:'The battery % after must be higher than before.'};
+  const odo=parseFloat(document.getElementById('cOdo').value), lc=lastCharge();
+  if(isNaN(odo)||odo<=0)return {ok:false,msg:'Enter the odometer in km.'};
+  if(lc&&odo<lc.odo)return {ok:false,msg:'The odometer cannot be below the last charge ('+lc.odo+' km).'};
+  if(lc&&odo-lc.odo>3000)return {ok:false,msg:(odo-lc.odo)+' km since the last charge. Please check the odometer.'};
   const stored=(p-b)/100*S.pack;
   const m=where!=='Station'&&window.measuredBetween?measuredBetween(lastChargeTs(),Date.now()):null;
   const wall=m?m.kwh:stored*(1+S.loss/100), rate=rateOf(where);
-  return {ok:true,before:b,pct:p,stored,wall,cost:wall*rate,rate,measured:!!m};
+  const km=lc?odo-lc.odo:0, used=lc&&km>0?Math.max(0,(lc.pct-b)/100*S.pack):0;
+  return {ok:true,before:b,pct:p,odo,km,cons:km>0&&used>0?used/km*100:null,stored,wall,cost:wall*rate,rate,measured:!!m};
 };
 previewCharge=function(){
   const c=chargeCheck(), el=document.getElementById('cPrev');
   if(!c.ok){el.textContent=c.msg;return;}
-  el.textContent=(c.measured?`Wall ${kwh2(c.wall)} kWh measured by the EV meter`:`Stored ${kwh2(c.stored)} kWh · wall ${kwh2(c.wall)} kWh (+${S.loss}% loss)`)+` · ${money(c.cost)} at R${c.rate.toFixed(2)}/kWh · ≈ ${kmOf(c.stored).toFixed(0)} km`;
+  el.textContent=(c.measured?`Wall ${kwh2(c.wall)} kWh measured by the EV meter`:`Stored ${kwh2(c.stored)} kWh · wall ${kwh2(c.wall)} kWh (+${S.loss}% loss)`)+` · ${money(c.cost)} at R${c.rate.toFixed(2)}/kWh · ${c.km>0?c.km.toFixed(0)+' km since the last charge'+(c.cons==null?'':' · '+c.cons.toFixed(1)+' kWh/100 km'):'first charge with an odometer'}`;
 };
 saveCharge=function(){
   const c=chargeCheck();
   if(!c.ok)return toast(c.msg);
   const last=[...E].sort((a,b)=>a.ts-b.ts).pop(), now=Date.now();
   const bts=Math.min(now-1,(last?last.ts:now-2)+1);   /* just after the last entry, so the meter sessions in between belong to this charge */
-  E.push({kind:'trip',ts:bts,odo:0,pct:c.before});
-  E.push({kind:'charge',ts:now,odo:0,pct:c.pct,where});
+  E.push({kind:'trip',ts:bts,odo:0,pct:c.before});   /* "before %" reading: never carries the odometer */
+  E.push({kind:'charge',ts:now,odo:c.odo,pct:c.pct,where});
   save();toast('Charge saved');
   go('home');
 };
@@ -167,14 +193,16 @@ renderHist=function(){
   document.getElementById('histTotals').innerHTML=
     row('Charges',s.charges)+row('Charged (wall)',kwh2(s.wall)+' kWh')+row('Charging spend',money(s.cost))+
     row('Eskom',kwh2(t.eskom)+' kWh · '+money(t.eskomCost))+row('Solar (free)',kwh2(t.solar)+' kWh')+
-    row('Station',kwh2(t.station)+' kWh · '+money(t.stationCost))+row('Estimated distance (from kWh)','≈ '+t.km.toFixed(0)+' km');
+    row('Station',kwh2(t.station)+' kWh · '+money(t.stationCost))+
+    (t.kmReal>0?row('Driven (from the odometer)',t.kmReal.toFixed(0)+' km')+row('Use',t.consReal==null?'--':t.consReal.toFixed(1)+' kWh/100 km')+row('Cost per km',t.perKmReal==null?'--':'R'+t.perKmReal.toFixed(2))
+      :row('Estimated distance (from kWh)','≈ '+t.km.toFixed(0)+' km'));
   document.getElementById('carCompare').innerHTML='';
   const list=rows.filter(r=>r.type==='charge').reverse();
   document.getElementById('histList').innerHTML=list.length?list.map(r=>{
     const w=r.where==='Solar'?'Solar':r.where==='Station'?'Station':r.where?'Eskom':'Unlogged';
     const btns=r.where?'':`<div class="pair" style="margin-top:6px"><button class="chip" onclick="setWhereOf(${r.ts},'Home')">Eskom</button><button class="chip" onclick="setWhereOf(${r.ts},'Station')">Station</button><button class="chip" onclick="setWhereOf(${r.ts},'Solar')">Solar</button></div>`;
     const tag=r.auto?`<div class="pair" style="margin-top:6px"><button class="chip ${r.where==='Solar'?'':'on'}" onclick="pembaTagSolar(${r.ts},false)">Eskom</button><button class="chip ${r.where==='Solar'?'on':''}" onclick="pembaTagSolar(${r.ts},true)">Solar</button></div>`:'';
-    return `<div class="row"><div><span class="tag c">Charge</span>${r.measured?'<span class="tag g">MEASURED</span>':'<span class="tag">ESTIMATED</span>'}${r.auto?'<span class="tag">AUTO</span>':''}${stamp(r.ts)}<div class="small">${w} · ${kwh2(r.wall)} kWh wall · ≈ ${kmOf(r.stored).toFixed(0)} km${r.auto?' · added from the meter':''}</div>${btns}${tag}</div><div class="small">${money(r.cost)}</div></div>`;
+    return `<div class="row"><div><span class="tag c">Charge</span>${r.measured?'<span class="tag g">MEASURED</span>':'<span class="tag">ESTIMATED</span>'}${r.auto?'<span class="tag">AUTO</span>':''}${stamp(r.ts)}<div class="small">${w} · ${kwh2(r.wall)} kWh wall · ${r.odo>0?r.odo+' km odometer'+(r.km>0?' · +'+r.km.toFixed(0)+' km'+(r.cons==null?'':' · '+r.cons.toFixed(1)+' kWh/100 km'):''):'≈ '+kmOf(r.stored).toFixed(0)+' km'}${r.auto?' · added from the meter':''}</div>${btns}${tag}</div><div class="small">${money(r.cost)}</div></div>`;
   }).join(''):'<div class="small">Nothing logged in this range.</div>';
 };
 
@@ -210,7 +238,7 @@ renderShare=function(){
     row('Estimated pages',pages);
 };
 
-/* ---------- screens: hide what 1.0.0.1 does not have ---------- */
+/* ---------- screens: hide what 2.0.0.1 does not have ---------- */
 function hide(el){if(el)el.style.display='none';}
 function hideField(id){const e=document.getElementById(id);if(e)hide(e.closest('.field')||e);}
 function hideCard(id){const e=document.getElementById(id);if(e)hide(e.closest('.card')||e);}
@@ -226,7 +254,7 @@ document.querySelectorAll('#s-set .app-row').forEach(b=>{
   if(c){c.checked=false;hide(c.closest('label')||c);}
 });
 hide(document.getElementById('carCompare'));
-const logo=document.querySelector('header img');if(logo)logo.style.filter='hue-rotate(170deg) saturate(1.1)';
+const logo=document.querySelector('header img');if(logo)logo.style.filter='hue-rotate(80deg) saturate(1.1)';
 const eskomBtn=document.getElementById('wHome');if(eskomBtn)eskomBtn.textContent='Eskom';
 
 renderAll();

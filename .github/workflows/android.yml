@@ -2,7 +2,7 @@ name: Android APK
 
 on:
   push:
-    branches: [main]
+    branches: [main, pemba-v2]
     tags: ["Ver_FarrQ_*"]
   workflow_dispatch:
 
@@ -64,13 +64,15 @@ jobs:
           FARRQ_SIGNING_KEY_PASSWORD: ${{ secrets.FARRQ_SIGNING_PASS }}
         run: |
           gradle :app:assembleRelease --stacktrace
-          cp app/build/outputs/apk/release/app-release.apk "Pemba-Charge-1-${GITHUB_REF_NAME}.apk"
+          N=$(sed -n 's/.*versionName = "\([0-9]*\)\..*/\1/p' app/build.gradle.kts)
+          cp app/build/outputs/apk/release/app-release.apk "Pemba-Charge-${N}-${GITHUB_REF_NAME}.apk"
 
       - name: Build test APK (no signing secret yet)
         if: steps.key.outputs.signed != 'true'
         run: |
           gradle :app:assembleDebug --stacktrace
-          cp app/build/outputs/apk/debug/app-debug.apk "Pemba-Charge-1-${GITHUB_REF_NAME}-TEST-ONLY.apk"
+          N=$(sed -n 's/.*versionName = "\([0-9]*\)\..*/\1/p' app/build.gradle.kts)
+          cp app/build/outputs/apk/debug/app-debug.apk "Pemba-Charge-${N}-${GITHUB_REF_NAME}-TEST-ONLY.apk"
 
       - name: Lint report (never blocks the build)
         continue-on-error: true
@@ -79,18 +81,19 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Pemba-Charge-1-${{ github.ref_name }}
-          path: Pemba-Charge-1-*.apk
+          name: Pemba-Charge-${{ github.ref_name }}
+          path: Pemba-Charge-*.apk
           if-no-files-found: error
 
       - name: Publish release for this version
-        if: steps.key.outputs.signed == 'true' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/Ver_FarrQ_'))
+        if: steps.key.outputs.signed == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pemba-v2' || startsWith(github.ref, 'refs/tags/Ver_FarrQ_'))
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VER=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
-          APK="Pemba-Charge-1-${VER}.apk"
-          cp Pemba-Charge-1-*.apk "$APK" 2>/dev/null || true
+          N=${VER%%.*}
+          APK="Pemba-Charge-${N}-${VER}.apk"
+          cp Pemba-Charge-${N}-*.apk "$APK" 2>/dev/null || true
           NOTES="docs/${VER}-release-notes.md"
           if [ ! -f "$NOTES" ]; then NOTES="README.md"; fi
           if gh release view "$VER" >/dev/null 2>&1; then
@@ -98,22 +101,23 @@ jobs:
             gh release edit "$VER" --notes-file "$NOTES" --latest
           else
             gh release create "$VER" "$APK" --target "$GITHUB_SHA" --latest \
-              --title "Pemba Charge 1 ${VER}" --notes-file "$NOTES"
+              --title "Pemba Charge ${N} ${VER}" --notes-file "$NOTES"
           fi
 
       - name: Publish test APK (no signing secret, so a debug build)
-        if: steps.key.outputs.signed != 'true' && github.ref == 'refs/heads/main'
+        if: steps.key.outputs.signed != 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pemba-v2')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VER=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
+          N=${VER%%.*}
           TAG="v${VER}-test"
-          APK="Pemba-Charge-1-${VER}-TEST.apk"
-          cp Pemba-Charge-1-*.apk "$APK"
+          APK="Pemba-Charge-${N}-${VER}-TEST.apk"
+          cp Pemba-Charge-${N}-*.apk "$APK"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber
           else
             gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --prerelease \
-              --title "Pemba Charge 1 ${VER} (test build)" \
+              --title "Pemba Charge ${N} ${VER} (test build)" \
               --notes "Debug build for bench testing. Not signed with a permanent key: uninstall the old test build before installing a new one."
           fi

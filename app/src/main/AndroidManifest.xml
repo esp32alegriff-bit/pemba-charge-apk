@@ -12,7 +12,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:roundIcon="@drawable/ic_launcher"
-        android:label="Pemba Charge 1"
+        android:label="Pemba Charge 2"
         android:supportsRtl="true"
         android:theme="@style/FarrQ"
         android:usesCleartextTraffic="true">

@@ -1,6 +1,6 @@
-# Pemba Charge 1 (bench build)
+# Pemba Charge 2 (bench build, odometer in the Charge log only)
 
-Copy of FARR Q Charge Ver_FarrQ_2.2.8.2 with no odometer, no trips and no Anytime log. Electricity cost only. Package `za.co.farrusco.pembacharge1`, version 1.0.0.1. The home app and the home Google Sheet are not touched.
+Copy of FARR Q Charge Ver_FarrQ_2.2.8.2 with no trips and no Anytime log. Electricity cost first. The odometer is asked in the Charge log only and stored on charge entries only. Package `za.co.farrusco.pembacharge2`, version 2.0.0.1 (branch `pemba-v2`). Version 1.0.0.1 (no odometer at all, package `pembacharge1`) stays on `main`. The home app and the home Google Sheet are not touched.
 
 ---
 
