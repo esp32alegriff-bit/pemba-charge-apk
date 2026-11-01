@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="FarrQ" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/farrq_bg</item>
+        <item name="android:colorBackground">@color/farrq_bg</item>
+        <item name="android:colorPrimary">@color/farrq_bg</item>
+        <item name="android:colorPrimaryDark">@color/farrq_bg</item>
+        <item name="android:colorAccent">@color/farrq_cyan</item>
+        <item name="android:statusBarColor">@color/farrq_bg</item>
+        <item name="android:navigationBarColor">@color/farrq_panel</item>
+    </style>
+    <color name="farrq_bg">#0B0F17</color>
+    <color name="farrq_panel">#121A28</color>
+    <color name="farrq_cyan">#22D3EE</color>
+</resources>

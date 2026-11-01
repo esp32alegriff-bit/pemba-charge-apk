@@ -1,0 +1,119 @@
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    tags: ["Ver_FarrQ_*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Check web files
+        run: |
+          node --check app/src/main/assets/web/farrq-17.js
+          node --check app/src/main/assets/web/pemba-1.js
+          python3 - <<'EOF'
+          import re
+          s = open('app/src/main/assets/web/index.html', encoding='utf-8').read()
+          blocks = re.findall(r'<script>(.*?)</script>', s, re.S)
+          open('/tmp/main.js', 'w', encoding='utf-8').write(max(blocks, key=len))
+          EOF
+          node --check /tmp/main.js
+
+      - name: Unlock the permanent signing key
+        id: key
+        env:
+          FARRQ_SIGNING_PASS: ${{ secrets.FARRQ_SIGNING_PASS }}
+        run: |
+          if [ -z "$FARRQ_SIGNING_PASS" ]; then
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Secret FARRQ_SIGNING_PASS is not set, so only a test (debug) APK is built. See docs/release-signing.md."
+            exit 0
+          fi
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in signing/farrq-release.jks.enc \
+            -out "$RUNNER_TEMP/farrq-release.jks" -pass env:FARRQ_SIGNING_PASS
+          chmod 600 "$RUNNER_TEMP/farrq-release.jks"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build signed release APK
+        if: steps.key.outputs.signed == 'true'
+        env:
+          FARRQ_SIGNING_STORE_FILE: ${{ runner.temp }}/farrq-release.jks
+          FARRQ_SIGNING_STORE_PASSWORD: ${{ secrets.FARRQ_SIGNING_PASS }}
+          FARRQ_SIGNING_KEY_ALIAS: farrq
+          FARRQ_SIGNING_KEY_PASSWORD: ${{ secrets.FARRQ_SIGNING_PASS }}
+        run: |
+          gradle :app:assembleRelease --stacktrace
+          cp app/build/outputs/apk/release/app-release.apk "Pemba-Charge-1-${GITHUB_REF_NAME}.apk"
+
+      - name: Build test APK (no signing secret yet)
+        if: steps.key.outputs.signed != 'true'
+        run: |
+          gradle :app:assembleDebug --stacktrace
+          cp app/build/outputs/apk/debug/app-debug.apk "Pemba-Charge-1-${GITHUB_REF_NAME}-TEST-ONLY.apk"
+
+      - name: Lint report (never blocks the build)
+        continue-on-error: true
+        run: gradle :app:lintDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pemba-Charge-1-${{ github.ref_name }}
+          path: Pemba-Charge-1-*.apk
+          if-no-files-found: error
+
+      - name: Publish release for this version
+        if: steps.key.outputs.signed == 'true' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/Ver_FarrQ_'))
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
+          APK="Pemba-Charge-1-${VER}.apk"
+          cp Pemba-Charge-1-*.apk "$APK" 2>/dev/null || true
+          NOTES="docs/${VER}-release-notes.md"
+          if [ ! -f "$NOTES" ]; then NOTES="README.md"; fi
+          if gh release view "$VER" >/dev/null 2>&1; then
+            gh release upload "$VER" "$APK" --clobber
+            gh release edit "$VER" --notes-file "$NOTES" --latest
+          else
+            gh release create "$VER" "$APK" --target "$GITHUB_SHA" --latest \
+              --title "Pemba Charge 1 ${VER}" --notes-file "$NOTES"
+          fi
+
+      - name: Publish test APK (no signing secret, so a debug build)
+        if: steps.key.outputs.signed != 'true' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
+          TAG="v${VER}-test"
+          APK="Pemba-Charge-1-${VER}-TEST.apk"
+          cp Pemba-Charge-1-*.apk "$APK"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" --clobber
+          else
+            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --prerelease \
+              --title "Pemba Charge 1 ${VER} (test build)" \
+              --notes "Debug build for bench testing. Not signed with a permanent key: uninstall the old test build before installing a new one."
+          fi

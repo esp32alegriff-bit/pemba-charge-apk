@@ -1,0 +1,1621 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0f17">
+<title>PEMBA CHARGE</title>
+<style>
+:root{--bg:#0b0f17;--panel:#121a28;--line:#1f2b40;--text:#e8eef8;--muted:#8393ad;--blue:#3b82f6;--cyan:#22d3ee;--gold:#e0b35a;--green:#34d399;--red:#ef4444;--warn:#fb923c}
+body.light{--bg:#f3f6fb;--panel:#ffffff;--line:#d9e1ee;--text:#0f1724;--muted:#5b6880}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{min-height:100vh;padding-bottom:88px}
+header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+header img{width:44px;height:44px;object-fit:contain;border-radius:8px}
+header h1{font-size:18px;margin:0;letter-spacing:.5px}
+header .sub{font-size:12px;color:var(--muted)}
+main{padding:14px 16px}
+h2{font-size:18px;margin:4px 0 12px}
+.screen{display:none}
+.screen.on{display:block}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.big{font-size:30px;font-weight:700;color:var(--cyan);margin:4px 0}
+.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.row:last-child{border-bottom:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.pair{display:flex;gap:10px;margin-top:4px}
+.pair .chip{flex:1;text-align:center;padding:12px;border-radius:12px;font-size:15px}
+.pair .chip.on{background:var(--cyan);border-color:var(--cyan);color:#06222a}
+.btn{width:100%;padding:14px;border-radius:12px;border:0;background:var(--blue);color:#fff;font-size:16px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit}
+.btn.gold{background:var(--gold);color:#1a1405}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+.pair .btn{margin-top:0}
+input[type=number],input[type=text],input[type=password],input[type=url],select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:16px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.stamp{font-size:18px;margin-top:4px}
+.hdr-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;margin-right:6px;border:1px solid var(--line)}
+.tag.t{color:var(--blue);border-color:var(--blue)}
+.tag.c{color:var(--gold);border-color:var(--gold)}
+.tag.g{color:var(--green);border-color:var(--green)}
+.app-row{width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:15px;margin-bottom:8px;cursor:pointer;font-family:inherit;text-align:left}
+.app-row span.small{font-size:12px}
+.check{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px}
+.check input{width:18px;height:18px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:12px 4px;background:none;border:0;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+nav button.on{color:var(--cyan);font-weight:600}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--gold);padding:10px 14px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90%;text-align:center;z-index:5}
+.toast.on{opacity:1}
+svg{width:100%;height:auto;display:block}
+.sep{height:1px;background:var(--line);margin:12px 0}
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+<header>
+  <img src="data:image/jpeg;base64,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" alt="Farrusco logo">
+  <div>
+    <h1>PEMBA CHARGE</h1>
+    <div class="sub">Cherry Q charging cost tracker · 1.0.0.1</div>
+  </div>
+</header>
+
+<main>
+
+<!-- HOME -->
+<section class="screen on" id="s-home">
+  <div id="homeAlert"></div>
+  <div id="meterAlert"></div>
+  <div class="chips" id="rangeChips">
+    <button class="chip" data-d="today" onclick="setRange(this)">Today</button>
+    <button class="chip" data-d="1" onclick="setRange(this)">1 day</button>
+    <button class="chip" data-d="3" onclick="setRange(this)">3 days</button>
+    <button class="chip on" data-d="7" onclick="setRange(this)">7 days</button>
+    <button class="chip" data-d="10" onclick="setRange(this)">10 days</button>
+    <button class="chip" data-d="30" onclick="setRange(this)">30 days</button>
+  </div>
+  <div class="card">
+    <div class="label" id="effLabel">Efficiency, last 7 days</div>
+    <div class="big" id="effBig">--</div>
+    <div class="small" id="effSub"></div>
+    <div id="homeBar" style="margin-top:8px"></div>
+  </div>
+  <div class="pair">
+    <button class="btn gold" onclick="go('charge')">+ Charge log</button>
+  </div>
+  <div id="meterCard"></div>
+  <!-- 1.8: relay buttons and MANUAL/AUTO on Home (same controls as the Relays page) -->
+  <div class="card" id="homeRelay">
+    <div class="hdr-row"><div class="label">Relays and AUTO</div><div class="small" id="hRStatus">--</div></div>
+    <div class="label" style="margin:12px 0 6px">Relay 1 · Eskom input</div>
+    <div class="pair"><button class="btn ghost" data-relay="1" data-state="on" onclick="farrRelay(1,true)">ON</button><button class="btn ghost" data-relay="1" data-state="off" onclick="farrRelay(1,false)">OFF</button></div>
+    <div class="label" style="margin:12px 0 6px">Relay 2 · EV charger</div>
+    <div class="pair"><button class="btn ghost" data-relay="2" data-state="on" onclick="farrRelay(2,true)">ON</button><button class="btn ghost" data-relay="2" data-state="off" onclick="farrRelay(2,false)">OFF</button></div>
+    <div class="label" style="margin:12px 0 6px">Mode</div>
+    <div class="pair"><button class="chip" id="hModeManual" onclick="farrMode('MANUAL')">MANUAL</button><button class="chip" id="hModeAuto" onclick="farrMode('AUTO')">AUTO</button></div>
+    <div class="small" id="hAutoState" style="margin-top:8px"></div>
+  </div>
+  <button class="btn ghost" onclick="go('set')">Settings</button>
+  <div class="card" id="homeRows"></div>
+  <div id="liveEst"></div>
+</section>
+
+<section class="screen" id="s-trip" style="display:none"></section>
+
+<!-- CHARGE LOG -->
+<section class="screen" id="s-charge">
+  <h2>Charge log</h2>
+  <div class="card">
+    <div class="label">Stamped automatically</div>
+    <div class="stamp" id="cStamp"></div>
+  </div>
+  <div class="card">
+    <div class="field"><label for="cBefore">Battery % before charging</label><input id="cBefore" type="number" inputmode="numeric" min="0" max="99" oninput="previewCharge()"></div>
+    <div class="field"><label for="cPct">Battery % after charging</label><input id="cPct" type="number" inputmode="numeric" min="1" max="100" oninput="previewCharge()"></div>
+    <input id="cOdo" type="hidden" value="0">
+    <input id="cCar" type="hidden" value="">
+    <div class="pair" style="margin-bottom:10px">
+      <button class="chip on" id="wHome" onclick="setWhere('Home')">Eskom</button>
+      <button class="chip" id="wStation" onclick="setWhere('Station')">Station</button>
+      <button class="chip" id="wSolar" onclick="setWhere('Solar')">Solar</button>
+    </div>
+    <div class="small" id="cPrev"></div>
+  </div>
+  <button class="btn gold" onclick="saveCharge()">Save charge</button>
+  <button class="btn ghost" onclick="go('home')">Cancel</button>
+</section>
+
+<!-- HISTORY -->
+<section class="screen" id="s-hist">
+  <h2>History</h2>
+  <div class="chips" id="histChips">
+    <button class="chip" data-d="7" onclick="setHist(this)">7 days</button>
+    <button class="chip" data-d="30" onclick="setHist(this)">30 days</button>
+    <button class="chip" data-d="all" onclick="setHist(this)">All</button>
+  </div>
+  <div class="card" id="histTotals"></div>
+  <div class="card" id="carCompare"></div>
+  <div class="card" id="histList"></div>
+</section>
+
+<!-- GRAPHS -->
+<section class="screen" id="s-graph">
+  <h2>Graphs</h2>
+  <div class="card">
+    <div class="label">Cost by day (R)</div>
+    <div id="gBar"></div>
+    <div class="small">Each bar is the charging cost of one day.</div>
+  </div>
+  <div class="card">
+    <div class="label">Charging split, Eskom, solar and station</div>
+    <div id="gPie"></div>
+  </div>
+  <div class="card">
+    <div class="label">Energy by day (kWh at the wall)</div>
+    <div id="gLine"></div>
+  </div>
+  <button class="btn ghost" onclick="go('set')">Settings</button>
+</section>
+
+<!-- SETTINGS -->
+<section class="screen" id="s-set">
+  <h2>Settings</h2>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">Calculation rates</div>
+    <div class="field"><label for="set_rateHome">Eskom (home) rate (R per kWh)</label><input id="set_rateHome" type="number" step="0.01" onchange="setVal('rateHome',this.value)"></div>
+    <div class="field"><label for="set_rateStation">Station rate (R per kWh, generic public DC)</label><input id="set_rateStation" type="number" step="0.01" onchange="setVal('rateStation',this.value)"></div>
+    <div class="field"><label for="set_rateSolar">Solar rate (R per kWh, 0 = free sun)</label><input id="set_rateSolar" type="number" step="0.01" onchange="setVal('rateSolar',this.value)"></div>
+    <div class="field"><label for="set_loss">Charging loss (%), fixed</label><input id="set_loss" type="number" step="0.5" onchange="setVal('loss',this.value)"></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">Car</div>
+    <div class="field"><label for="set_effEst">Estimated use (kWh/100 km), for the km estimate</label><input id="set_effEst" type="number" step="0.1" onchange="setVal('effEst',this.value)"></div>
+    <div class="field"><label for="set_pack">Battery pack (kWh)</label><input id="set_pack" type="number" step="0.1" onchange="setVal('pack',this.value)"></div>
+    <div class="field"><label for="set_claim">Chery claim (kWh/100 km)</label><input id="set_claim" type="number" step="0.1" onchange="setVal('claim',this.value)"></div>
+    <div class="field"><label for="set_carPrice">Car price (R, for the payback page in the report)</label><input id="set_carPrice" type="number" step="1" onchange="setVal('carPrice',this.value)"></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">Petrol comparison</div>
+    <div class="field"><label for="set_petrol">Petrol price (R per litre)</label><input id="set_petrol" type="number" step="0.01" onchange="setVal('petrol',this.value)"></div>
+    <div class="field"><label for="set_compare">Comparison car (L/100 km)</label><input id="set_compare" type="number" step="0.1" onchange="setVal('compare',this.value)"></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">Starting point</div>
+    <div class="small" style="margin-bottom:10px">Your first reading. Every trip is measured from it, and this clears the sample data.</div>
+    <div class="field"><label for="st_odo">Current odometer (km)</label><input id="st_odo" type="number" inputmode="numeric"></div>
+    <div class="field"><label for="st_pct">Current battery %</label><input id="st_pct" type="number" inputmode="numeric" min="0" max="100"></div>
+    <button class="btn" onclick="startFresh()">Start fresh</button>
+  </div>
+  <div class="label" style="margin:16px 0 8px">EV meter and relays</div>
+  <button class="app-row" onclick="go('meter')"><div>Live meter and calibration<br><span class="small">Live watts and amps, calibration factor, measured sessions</span></div><span class="small">Open</span></button>
+  <button class="app-row" onclick="go('learn')"><div>Learning and estimates<br><span class="small">Charge time, kWh and cost to 100%, learned from your Shelly sessions</span></div><span class="small">Open</span></button>
+  <button class="app-row" onclick="go('relay')"><div>Relays and AUTO<br><span class="small">Eskom and EV relays, START/STOP charging, MANUAL or AUTO</span></div><span class="small">Open</span></button>
+  <button class="app-row" onclick="go('alerts')"><div>Alerts<br><span class="small" id="alertsRowSub">Every alert, notifications and background checks</span></div><span class="small">Open</span></button>
+  <button class="app-row" onclick="go('conn')"><div>Connections<br><span class="small">Meter and relay addresses, relay token, MQTT to the Pi</span></div><span class="small">Open</span></button>
+  <button class="app-row" onclick="go('info')"><div>Info and diagnostics<br><span class="small">Everything the app is set to and how-to guides</span></div><span class="small">Open</span></button>
+  <div class="label" style="margin:16px 0 8px">App</div>
+  <div class="app-row" style="cursor:default"><div>Distance units<br><span class="small">Kilometres (fixed)</span></div></div>
+  <button class="app-row" onclick="toggleTheme()"><div>Theme<br><span class="small" id="themeName"></span></div><span class="small">Switch</span></button>
+  <button class="app-row" onclick="exportCSV()"><div>Send backup<br><span class="small">Share all your readings to your partner's phone (WhatsApp)</span></div><span class="small">Send</span></button>
+  <button class="app-row" onclick="document.getElementById('importFile').click()"><div>Import backup<br><span class="small">Adds readings from your partner's backup, skipping any already here</span></div><span class="small">Import</span></button>
+  <input type="file" id="importFile" accept=".csv,text/csv" style="display:none" onchange="importCSV(this)">
+  <button class="app-row" onclick="sendText()"><div>Send backup as text<br><span class="small">Sends the readings as a WhatsApp message, easy to copy on her phone</span></div><span class="small">Send</span></button>
+  <button class="app-row" onclick="togglePaste()"><div>Paste backup<br><span class="small">Copy the backup message from WhatsApp, then paste it here</span></div><span class="small">Paste</span></button>
+  <div id="pasteBox" class="card" style="display:none">
+    <textarea id="pasteText" rows="6" placeholder="Long-press the backup message in WhatsApp, tap Copy, then long-press here and tap Paste" style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg,transparent);color:var(--text);font-family:inherit;font-size:14px"></textarea>
+    <button class="btn" onclick="importPasted()">Import pasted backup</button>
+  </div>
+  <button class="app-row" onclick="shareApp()"><div>Share the app<br><span class="small">Send the link to someone else</span></div><span class="small">Share</span></button>
+  <button class="btn ghost" onclick="go('graph')">Back to graphs</button>
+</section>
+
+<!-- SHARE -->
+<section class="screen" id="s-share">
+  <h2>Share report</h2>
+  <div class="chips" id="shareChips">
+    <button class="chip" data-d="today" onclick="setShare(this)">Today</button>
+    <button class="chip" data-d="7" onclick="setShare(this)">Week</button>
+    <button class="chip on" data-d="30" onclick="setShare(this)">Month</button>
+    <button class="chip" data-d="all" onclick="setShare(this)">All</button>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:6px">Include in PDF</div>
+    <label class="check"><input type="checkbox" id="inc_sum" checked onchange="renderShare()"> Summary page</label>
+    <label class="check"><input type="checkbox" id="inc_graph" checked onchange="renderShare()"> Graphs (bar, pie, trend)</label>
+    <label class="check"><input type="checkbox" id="inc_trips" checked onchange="renderShare()"> Full trip log</label>
+    <label class="check"><input type="checkbox" id="inc_charges" checked onchange="renderShare()"> Full charge log</label>
+    <label class="check"><input type="checkbox" id="inc_car" checked onchange="renderShare()"> Car claim vs real comparison</label>
+    <label class="check"><input type="checkbox" id="inc_auto" checked onchange="renderShare()"> Meter sessions and AUTO charges</label>
+    <label class="check"><input type="checkbox" id="inc_detail" checked onchange="renderShare()"> Charge graphs, estimates and detail pages</label>
+    <label class="check"><input type="checkbox" id="inc_sheet" checked onchange="renderShare()"> Google Sheet and sync status</label>
+    <label class="check"><input type="checkbox" id="inc_method" checked onchange="renderShare()"> Method and assumptions</label>
+  </div>
+  <div class="card" id="sharePreview"></div>
+  <button class="btn" onclick="makePdf()">Create PDF report</button>
+  <div class="small" style="margin-top:8px">The PDF is built on your phone, then the Android share sheet opens for WhatsApp, Telegram or email.</div>
+</section>
+
+<!-- 1.7: LIVE METER AND CALIBRATION -->
+<section class="screen" id="s-meter">
+  <h2>Live meter and calibration</h2>
+  <div class="card">
+    <div class="hdr-row"><div class="label">Live power</div><div class="small" id="mStatus">--</div></div>
+    <div class="big" id="mWatts">-- W</div>
+    <div id="mRows"></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">Calibrate against the car and the Ellies meter</div>
+    <div class="small" style="margin-bottom:10px">Charge the car, read the watts on the Ellies meter, type it below and tap Match. The live reading above updates every second so you can check it straight away.</div>
+    <div class="field"><label for="calRef">Ellies meter reading now (W)</label><input id="calRef" type="number" inputmode="decimal" placeholder="for example 3000"></div>
+    <button class="btn gold" onclick="farrCalMatch()">Match the meter to this reading</button>
+    <div class="sep"></div>
+    <div class="field"><label for="calFactor">Calibration factor (1.000 = uncalibrated)</label><input id="calFactor" type="number" step="0.001" inputmode="decimal"></div>
+    <button class="btn ghost" onclick="farrCalSave()">Save factor to the meter</button>
+    <div class="small" id="calMsg" style="margin-top:8px"></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">Session detection</div>
+    <div class="field"><label for="th_start_w">Session starts above (W)</label><input id="th_start_w" type="number" inputmode="numeric"></div>
+    <div class="field"><label for="th_start_s">for at least (seconds)</label><input id="th_start_s" type="number" inputmode="numeric"></div>
+    <div class="field"><label for="th_end_w">Session ends below (W)</label><input id="th_end_w" type="number" inputmode="numeric"></div>
+    <div class="field"><label for="th_end_s">for at least (seconds)</label><input id="th_end_s" type="number" inputmode="numeric"></div>
+    <button class="btn ghost" onclick="farrThSave()">Save to the meter</button>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:8px">Measured sessions</div>
+    <div id="mSessions"><div class="small">No measured sessions yet.</div></div>
+  </div>
+  <button class="btn ghost" onclick="go('set')">Back to settings</button>
+</section>
+
+<!-- 1.7: RELAYS AND AUTO -->
+<section class="screen" id="s-relay">
+  <h2>Relays and AUTO</h2>
+  <div class="card">
+    <div class="hdr-row"><div class="label">Relay board</div><div class="small" id="rStatus">--</div></div>
+    <div id="rRows"></div>
+    <div class="small" style="margin-top:6px">No contactors are fitted yet, so the relays click but the car keeps charging. Charging never depends on the relay board.</div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:8px">Relay 1 · Eskom input</div>
+    <div class="pair"><button class="btn ghost" data-relay="1" data-state="on" onclick="farrRelay(1,true)">ON</button><button class="btn ghost" data-relay="1" data-state="off" onclick="farrRelay(1,false)">OFF</button></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:8px">Relay 2 · EV charger</div>
+    <div class="pair"><button class="btn ghost" data-relay="2" data-state="on" onclick="farrRelay(2,true)">ON</button><button class="btn ghost" data-relay="2" data-state="off" onclick="farrRelay(2,false)">OFF</button></div>
+  </div>
+  <div class="pair">
+    <button class="btn" onclick="farrCharge(true)">START CHARGING</button>
+    <button class="btn gold" onclick="farrCharge(false)">STOP CHARGING</button>
+  </div>
+  <div class="small" style="margin:8px 0 12px">START: Eskom ON, then EV ON. STOP: EV OFF, then Eskom OFF. This is the relay board's own sequence, unchanged.</div>
+  <div class="card">
+    <div class="label" style="margin-bottom:8px">Mode</div>
+    <div class="pair"><button class="chip" id="modeManual" onclick="farrMode('MANUAL')">MANUAL</button><button class="chip" id="modeAuto" onclick="farrMode('AUTO')">AUTO</button></div>
+    <div class="small" id="autoState" style="margin-top:8px"></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">AUTO rules (run on the meter, so they work while you are away)</div>
+    <div class="small" style="margin-bottom:10px">AUTO only ever switches Relay 2 (EV) OFF. It never switches anything ON and never touches Relay 1 (Eskom).</div>
+    <div class="field"><label for="au_off_w">After charging started, switch EV OFF at or below (W)</label><input id="au_off_w" type="number" inputmode="numeric"></div>
+    <div class="field"><label for="au_off_s">for at least (seconds)</label><input id="au_off_s" type="number" inputmode="numeric"></div>
+    <div class="field"><label for="au_nostart">Switch EV OFF if the car never starts drawing within (minutes)</label><input id="au_nostart" type="number" inputmode="numeric"></div>
+    <div class="field"><label for="au_over">Over-current alert above (A)</label><input id="au_over" type="number" step="0.1" inputmode="decimal"></div>
+    <button class="btn ghost" onclick="farrAutoSave()">Save to the meter</button>
+  </div>
+  <button class="btn ghost" onclick="go('set')">Back to settings</button>
+</section>
+
+<!-- 1.7: ALERTS -->
+<section class="screen" id="s-alerts">
+  <h2>Alerts</h2>
+  <div class="card">
+    <div class="label" style="margin-bottom:8px">Background checks</div>
+    <div class="small" id="bgInfo">--</div>
+    <button class="btn ghost" onclick="farrCall('notifPermission')">Allow notifications</button>
+    <button class="btn ghost" onclick="farrCall('batteryOpt')">Allow checks while the phone sleeps</button>
+    <button class="btn ghost" onclick="farrSyncNow()">Check the meter now</button>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:6px">Which alerts to show</div>
+    <div id="alertTypes"></div>
+  </div>
+  <div class="card">
+    <div class="hdr-row"><div class="label">All alerts, newest first</div><button class="chip" onclick="farrClearAlerts()">Clear</button></div>
+    <div id="alertList"><div class="small">No alerts yet.</div></div>
+  </div>
+  <button class="btn ghost" onclick="go('set')">Back to settings</button>
+</section>
+
+<!-- 1.7: CONNECTIONS -->
+<section class="screen" id="s-conn">
+  <h2>Connections</h2>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">EV meter (ESP32-S3)</div>
+    <div class="field"><label for="cf_meter">Meter address</label><input id="cf_meter" type="text" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+    <div class="small">The meter is set to 192.168.1.128 in its own firmware. See Info and diagnostics for how to reserve it in the router.</div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">Relay board</div>
+    <div class="field"><label for="cf_relay">Relay address</label><input id="cf_relay" type="text" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+    <div class="field"><label for="cf_token">Relay token</label><input id="cf_token" type="password" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+    <div class="small">The token stays on this phone and is also sent to the meter so AUTO can switch the EV relay off.</div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px">MQTT to the Pi (meter publishes, off until tested)</div>
+    <div class="small" id="mqStatus" style="margin-bottom:10px"></div>
+    <div class="pair" style="margin-bottom:10px"><button class="chip" id="mqOff" onclick="farrMq(false)">MQTT off</button><button class="chip" id="mqOn" onclick="farrMq(true)">MQTT on</button></div>
+    <div class="field"><label for="cf_mqhost">Broker address</label><input id="cf_mqhost" type="text" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+    <div class="field"><label for="cf_mqport">Port</label><input id="cf_mqport" type="number" inputmode="numeric"></div>
+    <div class="field"><label for="cf_mquser">Username</label><input id="cf_mquser" type="text" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+    <div class="field"><label for="cf_mqpass">Password</label><input id="cf_mqpass" type="password" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+    <div class="small">Topics: farrusco/evmeter/... (live, session, event, totals, status, config, diag).</div>
+    <button class="btn ghost" onclick="farrMqTest()">Test MQTT from the meter</button>
+    <div class="small" id="mqMsg" style="margin-top:8px"></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:8px">View from anywhere (Google Sheet)</div>
+    <div class="small" style="margin-bottom:8px">Keeps a copy of the log, charges and meter sessions in your own Google Sheet, so you can open it from any country. Works on Wi-Fi or mobile data. Steps: docs/remote-viewing-google-sheet.gs.</div>
+    <div class="field"><label for="rm_url">Google web address</label><input id="rm_url" type="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://script.google.com/macros/s/.../exec"></div>
+    <div class="field"><label for="rm_token">Password</label><input id="rm_token" type="password" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+    <div class="field"><label for="rm_name">This phone's name</label><input id="rm_name" type="text" placeholder="Antonio or Estelle"></div>
+    <div class="pair"><button class="btn ghost" onclick="farrRemoteSave()">Save and send now</button><button class="btn ghost" onclick="farrRemoteSend()">Send now</button></div>
+    <div class="small" id="rmMsg" style="margin-top:8px;white-space:pre-line"></div>
+  </div>
+  <button class="btn" onclick="farrConnSave()">Save connections</button>
+  <div class="small" id="connMsg" style="margin-top:8px"></div>
+  <button class="btn ghost" onclick="go('set')">Back to settings</button>
+</section>
+
+<!-- 1.7: INFO AND DIAGNOSTICS -->
+<section class="screen" id="s-learn">
+  <h2>Learning and estimates</h2>
+  <div id="learnBody"></div>
+  <button class="btn ghost" onclick="go('set')">Back to settings</button>
+</section>
+
+<section class="screen" id="s-info">
+  <h2>Info and diagnostics</h2>
+  <button class="btn gold" onclick="farrShareDiag()">Share diagnostics (WhatsApp or email)</button>
+  <div id="infoBody" style="margin-top:12px"></div>
+  <button class="btn ghost" onclick="go('set')">Back to settings</button>
+</section>
+
+</main>
+
+<nav>
+  <button class="on" data-s="home" onclick="go('home')">Home</button>
+  <button data-s="hist" onclick="go('hist')">History</button>
+  <button data-s="graph" onclick="go('graph')">Graphs</button>
+  <button data-s="share" onclick="go('share')">Share</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="jspdf.umd.min.js"></script>
+<script src="farrq-17.js"></script>
+<script>
+const KEY_E='farrq.entries', KEY_S='farrq.settings';
+const DEF={rateHome:3.88,rateStation:7.35,rateSolar:0,loss:10,pack:42.7,claim:12.0,petrol:29.88,compare:8.5,carPrice:397741,theme:'dark'};
+let S=Object.assign({},DEF), E=[], range=7, hRange=30, sRange=30, where='Home';
+
+/* ---------- storage ---------- */
+function sampleEntries(){
+  let s=20261001; const rnd=()=>{s=(s*16807)%2147483647;return s/2147483647;};
+  const base=new Date(2026,9,1).getTime(), H=36e5;
+  let odo=12410, pct=96;
+  const out=[{kind:'start',ts:base+6*H,odo,pct}];
+  for(let d=0; d<16; d++){
+    const n=1+Math.floor(rnd()*3);
+    for(let k=0;k<n;k++){
+      const tTs=base+d*24*H+(7+k*5+rnd()*1.5)*H;
+      if(pct<32){
+        const st=rnd()<0.5, to=Math.round(90+rnd()*7);
+        out.push({kind:'charge',ts:tTs-0.75*H,odo,pct:to,where:st?'Station':'Home'});
+        pct=to;
+      }
+      const km=Math.round(6+rnd()*34), cons=10.5+rnd()*3.2;
+      odo+=km; pct=Math.round(pct-cons*km/42.7);
+      const trip={kind:'trip',ts:tTs,odo,pct};
+      if(k===0&&d%3===0)trip.carKm=Math.round(pct*4*(0.97+rnd()*0.06));
+      out.push(trip);
+    }
+  }
+  return out;
+}
+function load(){
+  try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY_S)||'{}'));}catch(e){}
+  try{E=JSON.parse(localStorage.getItem(KEY_E)||'null');}catch(e){E=null;}
+  if(!E||!E.length)E=[];
+}
+function save(){
+  try{localStorage.setItem(KEY_E,JSON.stringify(E));localStorage.setItem(KEY_S,JSON.stringify(S));}catch(e){}
+}
+
+/* ---------- maths ---------- */
+function derive(){
+  const src=[...E].sort((a,b)=>a.ts-b.ts), out=[];
+  let prev=null;
+  for(const e of src){
+    if(e.kind==='start'){prev=e;continue;}
+    if(!prev){prev=e;continue;}
+    if(e.kind==='trip'){
+      const km=e.odo-prev.odo, used=(prev.pct-e.pct)/100*S.pack, hours=(e.ts-prev.ts)/36e5;
+      const countEff=km>=5&&used>0&&(prev.pct-e.pct)>=2&&hours<=24;
+      out.push({...e,type:'trip',km,used,hours,countEff,cons:km>0?used/km*100:null});
+    }else{
+      const stored=(e.pct-prev.pct)/100*S.pack, m=e.where!=='Station'&&window.measuredBetween?measuredBetween(prev.ts,e.ts):null, wall=m?m.kwh:stored*(1+S.loss/100);
+      const rate=e.where==='Station'?S.rateStation:e.where==='Solar'?S.rateSolar:S.rateHome;
+      out.push({...e,type:'charge',stored,wall,cost:wall*rate,measured:!!m});
+    }
+    prev=e;
+  }
+  if(window.farrAutoRows){const au=farrAutoRows(src);if(au.length){out.push(...au);out.sort((x,y)=>x.ts-y.ts);}}
+  return out;
+}
+function periodName(p){
+  return p==='all'?'All entries':p==='today'?'Today':'Last '+p+' days';
+}
+function rowsFor(days){
+  const now=new Date();
+  const cut=days==='all'?0:days==='today'?new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime():Date.now()-days*864e5;
+  return derive().filter(r=>r.ts>=cut);
+}
+function cutOf(days){const now=new Date();return days==='all'?0:days==='today'?new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime():Date.now()-days*864e5;}
+function summ(rows){
+  const T=rows.filter(r=>r.type==='trip'&&r.km>0), C=rows.filter(r=>r.type==='charge');
+  const EF=T.filter(r=>r.countEff);
+  const sum=(a,k)=>a.reduce((x,r)=>x+r[k],0);
+  const km=sum(T,'km'), effKm=sum(EF,'km'), used=sum(EF,'used'), wall=sum(C,'wall'), cost=sum(C,'cost');
+  const home=C.filter(c=>c.where==='Home').reduce((x,c)=>x+c.wall,0);
+  const blended=wall?cost/wall:S.rateHome;
+  const eff=effKm?used/effKm*100:null;
+  return {T,C,km,used,wall,cost,home,station:C.filter(c=>c.where==='Station').reduce((x,c)=>x+c.wall,0),solar:C.filter(c=>c.where==='Solar').reduce((x,c)=>x+c.wall,0),blended,eff,
+    perKm:eff==null?null:eff/100*(1+S.loss/100)*blended,
+    trips:T.length,charges:C.length,distanceOnly:T.length-EF.length};
+}
+function lastState(){
+  const src=[...E].sort((a,b)=>a.ts-b.ts);
+  return src[src.length-1];
+}
+
+/* ---------- formatting ---------- */
+const money=n=>'R'+n.toFixed(2);
+const dk=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
+const stamp=ts=>new Date(ts).toLocaleString('en-ZA',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+const row=(a,b)=>`<div class="row"><span>${a}</span><b style="text-align:right">${b}</b></div>`;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('on'),2600);
+}
+
+/* ---------- charts ---------- */
+function barSVG(rows){
+  const T=rows.filter(r=>r.type==='trip'&&r.countEff), days={};
+  T.forEach(r=>{const k=dk(r.ts);if(!days[k])days[k]={k:0,u:0,ts:r.ts};days[k].k+=r.km;days[k].u+=r.used;});
+  const keys=Object.keys(days).sort();
+  if(!keys.length)return '<div class="small">No trips in this range yet.</div>';
+  const W=320,H=210,L=26,R=6,T0=22,B=44,pw=W-L-R,ph=H-T0-B;
+  const bw=pw/keys.length, y=v=>T0+ph*(1-Math.min(v,16)/16);
+  const month=new Date(days[keys[0]].ts).toLocaleDateString('en-ZA',{month:'long',year:'numeric'});
+  let g=`<text x="${W/2}" y="14" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">${month}</text>`;
+  for(const v of [0,4,8,12,16])
+    g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-4}" y="${y(v)+3}" text-anchor="end" fill="var(--muted)" font-size="9">${v}</text>`;
+  keys.forEach((k,i)=>{
+    const d=days[k], e=d.u/d.k*100, x=L+i*bw+bw*0.18, w=bw*0.64, dt=new Date(d.ts);
+    const fill=e>14?'var(--warn)':'var(--blue)';
+    g+=`<rect x="${x}" y="${y(e)}" width="${w}" height="${T0+ph-y(e)}" rx="2" fill="${fill}"><title>${dt.toLocaleDateString('en-ZA')}: ${e.toFixed(1)} kWh/100 km</title></rect>`;
+    g+=`<text x="${x+w/2}" y="${T0+ph+14}" text-anchor="middle" fill="var(--text)" font-size="9">${dt.getDate()}</text>`;
+    g+=`<text x="${x+w/2}" y="${T0+ph+26}" text-anchor="middle" fill="var(--muted)" font-size="8">${dt.toLocaleDateString('en-ZA',{weekday:'short'})}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+function pieSVG(rows){
+  const s=summ(rows);
+  const tot=s.home+s.station+s.solar;
+  if(!tot)return '<div class="small">No charges in this range yet.</div>';
+  const C=2*Math.PI*50;
+  const parts=[['Eskom',s.home,'var(--cyan)'],['Station',s.station,'var(--gold)'],['Solar',s.solar,'var(--green)']];
+  let off=0,arcs='';
+  parts.forEach(p=>{if(!p[1])return;const len=p[1]/tot*C;arcs+=`<circle r="50" fill="none" stroke="${p[2]}" stroke-width="22" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-off}"/>`;off+=len;});
+  const legend=parts.map((p,i)=>`<rect x="172" y="${40+i*22}" width="10" height="10" fill="${p[2]}"/><text x="188" y="${49+i*22}" fill="var(--text)" font-size="11">${p[0]} ${p[1].toFixed(1)} kWh (${Math.round(p[1]/tot*100)}%)</text>`).join('');
+  return `<svg viewBox="0 0 320 150"><g transform="translate(90,75) rotate(-90)"><circle r="50" fill="none" stroke="var(--line)" stroke-width="22"/>${arcs}</g><text x="90" y="79" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="700">${tot.toFixed(1)}</text><text x="90" y="93" text-anchor="middle" fill="var(--muted)" font-size="9">kWh wall</text>${legend}</svg>`;
+}
+function lineSVG(rows){
+  const T=rows.filter(r=>r.type==='trip'&&r.countEff);
+  if(T.length<2)return '<div class="small">Need at least two trips.</div>';
+  const W=320,H=210,L=28,R=10,T0=12,B=24,pw=W-L-R,ph=H-T0-B;
+  const y=v=>T0+ph*(1-(Math.min(Math.max(v,8),16)-8)/8);
+  const x=i=>L+pw*i/(T.length-1);
+  const pts=T.map((r,i)=>[x(i),y(r.cons)]);
+  const avg=summ(rows).eff;
+  let best=T[0],worst=T[0];
+  T.forEach(r=>{if(r.cons<best.cons)best=r;if(r.cons>worst.cons)worst=r;});
+  const bi=T.indexOf(best), wi=T.indexOf(worst);
+  let g='';
+  for(const v of [8,10,12,14,16])
+    g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-4}" y="${y(v)+3}" text-anchor="end" font-size="9" fill="var(--muted)">${v}</text>`;
+  g+=`<line x1="${L}" x2="${W-R}" y1="${y(S.claim)}" y2="${y(S.claim)}" stroke="var(--gold)" stroke-dasharray="4 3"/>`;
+  g+=`<line x1="${L}" x2="${W-R}" y1="${y(avg)}" y2="${y(avg)}" stroke="var(--cyan)" stroke-dasharray="2 3"/>`;
+  g+=`<polyline fill="none" stroke="var(--blue)" stroke-width="2" points="${pts.map(p=>p.join(',')).join(' ')}"/>`;
+  g+=`<circle cx="${pts[bi][0]}" cy="${pts[bi][1]}" r="4" fill="var(--green)"/>`;
+  g+=`<circle cx="${pts[wi][0]}" cy="${pts[wi][1]}" r="4" fill="var(--red)"/>`;
+  g+=`<text x="${L}" y="${H-6}" font-size="9" fill="var(--muted)">Oldest</text><text x="${W-R}" y="${H-6}" text-anchor="end" font-size="9" fill="var(--muted)">Latest</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}">${g}</svg>
+    <div class="small">Gold dashed = claim ${S.claim.toFixed(1)} · cyan dashed = average ${avg.toFixed(1)} · green = best ${best.cons.toFixed(1)} · red = worst ${worst.cons.toFixed(1)}</div>`;
+}
+
+/* PDF report */
+function buildReport(jsPDF,o){
+  const rows=o.rows, inc=o.inc, periodLabel=o.periodLabel;
+  const s=summ(rows), st=carStats(rows);
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,H=297,M=14,LIMIT=H-M-10,VER=window.FARR_VER||'Ver_FarrQ_1.6';
+  const C={ink:[17,24,39],muted:[100,116,139],gold:[180,116,16],cyan:[14,116,144],blue:[37,99,235],green:[22,163,74],warn:[234,88,12],line:[219,226,235],soft:[244,247,251],white:[255,255,255]};
+  const col=c=>doc.setTextColor(c[0],c[1],c[2]);
+  const fill=c=>doc.setFillColor(c[0],c[1],c[2]);
+  const draw=c=>doc.setDrawColor(c[0],c[1],c[2]);
+  const pct1=v=>(v*100).toFixed(1);
+  let y=M, started=false;
+
+  // ---------- layout helpers ----------
+  const newPage=()=>{
+    if(started)doc.addPage();
+    started=true;
+    fill(C.white);doc.rect(0,0,W,H,'F');
+    y=M;
+  };
+  const need=h=>{if(y+h>LIMIT)newPage();};
+  const title=t=>{
+    need(18);
+    doc.setFont('helvetica','bold');doc.setFontSize(16);col(C.ink);doc.text(t,M,y+6);
+    draw(C.cyan);doc.setLineWidth(0.6);doc.line(M,y+9,M+24,y+9);doc.setLineWidth(0.2);
+    y+=15;
+  };
+  const section=t=>{newPage();title(t);};
+  const sub=t=>{need(16);y+=3;doc.setFont('helvetica','bold');doc.setFontSize(11);col(C.cyan);doc.text(t,M,y+5);y+=9;};
+  const note=t=>{
+    doc.setFont('helvetica','normal');doc.setFontSize(8);col(C.muted);
+    const L=doc.splitTextToSize(t,W-2*M);
+    need(4*L.length+3);
+    doc.text(L,M,y+4);y+=4*L.length+2;
+  };
+  const box=lines=>{
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    const wrapped=[];
+    lines.forEach(t=>doc.splitTextToSize(t,W-2*M-8).forEach(l=>wrapped.push(l)));
+    const h=wrapped.length*4.6+6;
+    need(h+4);
+    fill(C.soft);doc.rect(M,y,W-2*M,h,'F');
+    fill(C.cyan);doc.rect(M,y,1.2,h,'F');
+    col(C.ink);wrapped.forEach((l,i)=>doc.text(l,M+4,y+4.6+i*4.6));
+    y+=h+4;
+  };
+  const kv=pairs=>{
+    pairs.forEach(p=>{
+      need(7);
+      doc.setFont('helvetica','normal');doc.setFontSize(9);col(C.muted);doc.text(String(p[0]),M,y+4.5);
+      col(C.ink);doc.setFont('helvetica','bold');doc.text(String(p[1]),W-M,y+4.5,{align:'right'});
+      draw(C.line);doc.line(M,y+6.5,W-M,y+6.5);y+=7;
+    });
+    y+=3;
+  };
+  const metric=(name,value,meaning)=>{
+    doc.setFont('helvetica','normal');doc.setFontSize(8);
+    const L=doc.splitTextToSize(meaning,W-2*M);
+    need(9+4*L.length+3);
+    doc.setFont('helvetica','bold');doc.setFontSize(9.5);col(C.ink);doc.text(name,M,y+4.5);
+    doc.text(String(value),W-M,y+4.5,{align:'right'});
+    doc.setFont('helvetica','normal');doc.setFontSize(8);col(C.muted);doc.text(L,M,y+9);
+    y+=9+4*L.length+2;
+    draw(C.line);doc.line(M,y,W-M,y);y+=3;
+  };
+  const table=(heads,xs,body)=>{
+    const head=()=>{
+      need(9);
+      doc.setFont('helvetica','bold');doc.setFontSize(7.5);col(C.gold);
+      heads.forEach((h,i)=>doc.text(h,M+xs[i],y+4));
+      draw(C.line);doc.line(M,y+5.5,W-M,y+5.5);y+=7;
+    };
+    head();
+    if(!body.length){note('Nothing logged in this period.');y+=2;return;}
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+    body.forEach((r,k)=>{
+      if(y+5.5>LIMIT){newPage();head();doc.setFont('helvetica','normal');doc.setFontSize(7.5);}
+      if(k%2===1){fill(C.soft);doc.rect(M,y,W-2*M,5,'F');}
+      col(C.ink);
+      r.forEach((v,i)=>doc.text(String(v),M+xs[i],y+3.6));
+      y+=5;
+    });
+    y+=4;
+  };
+  const bars=(items,maxV,step,refV,refLabel)=>{
+    const BH=42,n=items.length,cw=Math.min((W-2*M)/n,30),x0=M+((W-2*M)-cw*n)/2;
+    need(BH+18);
+    const base=y+BH;
+    doc.setFont('helvetica','normal');
+    for(let v=0;v<=maxV;v+=step){
+      const yy=base-BH*v/maxV;
+      draw(C.line);doc.line(M,yy,W-M,yy);
+      doc.setFontSize(6);col(C.muted);doc.text(String(v),M-1,yy+1,{align:'right'});
+    }
+    items.forEach((it,i)=>{
+      const x=x0+i*cw+cw*0.2,w=cw*0.6,hh=BH*Math.min(it.v,maxV)/maxV;
+      fill(it.warn?C.warn:C.blue);doc.rect(x,base-hh,w,hh,'F');
+      doc.setFontSize(6.5);col(C.ink);doc.text(String(it.label),x+w/2,base+4,{align:'center'});
+      doc.setFontSize(5.5);col(C.muted);doc.text(String(it.sub),x+w/2,base+7.5,{align:'center'});
+    });
+    if(refV!=null){
+      const yy=base-BH*Math.min(refV,maxV)/maxV;
+      draw(C.gold);doc.setLineWidth(0.4);doc.setLineDashPattern([1.5,1.5],0);doc.line(M,yy,W-M,yy);
+      doc.setLineDashPattern([],0);doc.setLineWidth(0.2);
+      doc.setFontSize(7);col(C.gold);doc.text(refLabel,W-M,yy-1.5,{align:'right'});
+    }
+    y=base+12;
+  };
+  const lineChart=(pts,claim,avg)=>{
+    const HC=58,x0=M+8,x1=W-M-2;
+    const vals=pts.map(p=>p.v).concat([claim,avg]);
+    const lo=Math.floor(Math.min(...vals)-1),hi=Math.ceil(Math.max(...vals)+1);
+    need(HC+22);
+    const top=y+2,base=top+HC;
+    const X=i=>pts.length<2?(x0+x1)/2:x0+(x1-x0)*i/(pts.length-1);
+    const Y=v=>base-HC*(v-lo)/(hi-lo);
+    const step=Math.max(1,Math.ceil((hi-lo)/5));
+    doc.setFont('helvetica','normal');
+    for(let v=lo;v<=hi;v+=step){
+      const yy=Y(v);draw(C.line);doc.line(x0,yy,x1,yy);
+      doc.setFontSize(6);col(C.muted);doc.text(String(v),x0-2,yy+1,{align:'right'});
+    }
+    draw(C.gold);doc.setLineDashPattern([1.5,1.5],0);doc.line(x0,Y(claim),x1,Y(claim));
+    draw(C.cyan);doc.line(x0,Y(avg),x1,Y(avg));doc.setLineDashPattern([],0);
+    draw(C.blue);doc.setLineWidth(0.6);
+    for(let i=1;i<pts.length;i++)doc.line(X(i-1),Y(pts[i-1].v),X(i),Y(pts[i].v));
+    doc.setLineWidth(0.2);
+    fill(C.blue);pts.forEach((p,i)=>doc.circle(X(i),Y(p.v),0.9,'F'));
+    doc.setFontSize(6);col(C.muted);
+    const every=Math.max(1,Math.ceil(pts.length/8));
+    pts.forEach((p,i)=>{if(i%every===0&&(i+every<pts.length||i===pts.length-1||pts.length-1-i>=every*0.7)||(i===pts.length-1&&(i%every)>=every*0.7))doc.text(p.label,X(i),base+4,{align:'center'});});   // 2.1.6: the last label no longer sits on top of the one before it
+    y=base+10;
+    note('Gold dashed = car claim '+claim.toFixed(1)+' · cyan dashed = your average '+avg.toFixed(1)+' · each dot = one trip that counts toward efficiency.');
+  };
+  const pie=(parts,cx,cy,r)=>{
+    const tot=parts.reduce((a,p)=>a+p.v,0);
+    if(!tot){fill(C.line);doc.circle(cx,cy,r,'F');return;}
+    let a0=-Math.PI/2;
+    parts.forEach(p=>{
+      if(!p.v)return;
+      const frac=p.v/tot;fill(p.c);
+      if(frac>=0.9999){doc.circle(cx,cy,r,'F');return;}
+      const n=Math.max(2,Math.round(frac*72)),a1=a0+frac*2*Math.PI;
+      const P=[[cx,cy]];
+      for(let k=0;k<=n;k++){const a=a0+(a1-a0)*k/n;P.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}
+      const vec=[];
+      for(let k=1;k<P.length;k++)vec.push([P[k][0]-P[k-1][0],P[k][1]-P[k-1][1]]);
+      doc.lines(vec,P[0][0],P[0][1],[1,1],'F',true);
+      a0=a1;
+    });
+  };
+  const carBars=(list,realPerPct)=>{
+    const LABW=50,BW=W-2*M-LABW-16,ROW=12;
+    const maxKm=Math.max(...list.map(r=>Math.max(r.carKm,r.pct*realPerPct)));
+    need(list.length*ROW+8);
+    list.forEach(r=>{
+      const real=r.pct*realPerPct;
+      doc.setFont('helvetica','normal');doc.setFontSize(7);col(C.ink);doc.text(stamp(r.ts),M,y+3.5);
+      col(C.muted);doc.text(r.pct+'% battery',M,y+7.5);
+      fill(C.gold);doc.rect(M+LABW,y+0.5,BW*r.carKm/maxKm,3.2,'F');
+      fill(C.blue);doc.rect(M+LABW,y+4.5,BW*real/maxKm,3.2,'F');
+      col(C.ink);doc.setFontSize(6.5);
+      doc.text(r.carKm+' km',M+LABW+BW*r.carKm/maxKm+1.5,y+3.4);
+      doc.text(real.toFixed(0)+' km',M+LABW+BW*real/maxKm+1.5,y+7.4);
+      y+=ROW;
+    });
+    y+=2;
+    note('Gold bar = what the car screen showed · blue bar = your real range estimate at the same battery %.');
+  };
+
+  // ---------- derived figures used in several sections ----------
+  const effKm=s.T.filter(r=>r.countEff).reduce((x,r)=>x+r.km,0);
+  const drop=r=>r.used/S.pack*100;                        // battery % lost on this trip
+  const reasonOf=r=>{
+    if(r.countEff)return 'Counted';
+    if(r.km<5)return 'Under 5 km';
+    if(r.hours>24)return 'Over 24 h gap';
+    return 'Drop under 2%';
+  };
+  const perKmHome=s.eff==null?null:s.eff/100*(1+S.loss/100)*S.rateHome;
+  const petrolPer100=S.compare*S.petrol;
+  const electricPer100=s.perKm==null?null:s.perKm*100;
+  const monday=ts=>{const d=new Date(ts),k=(d.getDay()+6)%7;return new Date(d.getFullYear(),d.getMonth(),d.getDate()-k).getTime();};
+  // 2.1.4: meter, AUTO charge and Google Sheet facts for the extra sections
+  const RI=(window.farrReportInfo&&window.farrReportInfo())||{};
+  const MSALL=((window.farrMeterSessions&&window.farrMeterSessions())||[]);
+  const MSL=MSALL.filter(x=>x.end_ms>=(o.cut||0));
+  const full=ts=>ts?new Date(ts).toLocaleString('en-ZA',{weekday:'short',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'--';
+  const hm=ts=>new Date(ts).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
+  const dmin=sec=>{sec=Math.max(0,Math.round(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60);return h?h+' h '+m+' min':m+' min';};
+  const agoTxt=ts=>{if(!ts)return 'never';const sc=Math.max(0,Math.round((Date.now()-ts)/1000));if(sc<90)return 'just now';if(sc<5400)return Math.round(sc/60)+' min ago';if(sc<172800)return Math.round(sc/3600)+' h ago';return Math.round(sc/86400)+' days ago';};
+  const tz=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){return '';}})();
+  const autoC=s.C.filter(c=>c.auto), typedC=s.C.filter(c=>!c.auto);
+  const sumK=(a,k)=>a.reduce((x,r)=>x+(+r[k]||0),0);
+  const RED=[220,38,38];
+  let RD=null;try{if(inc('detail')&&window.farr22)RD=farr22.reportData(o.cut||0);}catch(e){RD=null;}
+
+  // ---------- 1. Cover and summary ----------
+  newPage();
+  fill(C.ink);doc.rect(0,0,W,34,'F');fill(C.gold);doc.rect(0,34,W,1.2,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(20);col(C.white);doc.text('PEMBA CHARGE report',M,15);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(203,213,225);
+  doc.text('Cherry Q charging cost and meter report',M,22);
+  doc.text(periodLabel+'  ·  generated '+full(Date.now())+(tz?'  ·  '+tz:'')+'  ·  '+VER,M,28.5);
+  y=42;
+  if(inc('sum')){
+    const first=rows.length?Math.min(...rows.map(r=>r.ts)):null,last=rows.length?Math.max(...rows.map(r=>r.ts)):null;
+    sub('Highlights');
+    box([
+      'Eskom '+s.home.toFixed(2)+' kWh, solar '+s.solar.toFixed(2)+' kWh (free), station '+s.station.toFixed(2)+' kWh.',
+      s.charges+' charges, '+s.wall.toFixed(2)+' kWh at the wall, '+money(s.cost)+'. Added automatically from the Shelly meter: '+autoC.length+' ('+sumK(autoC,'wall').toFixed(2)+' kWh).',
+      'Meter: '+(RI.meterSeen?'connected'+(RI.rssi!=null?', Wi-Fi signal '+RI.rssi+' dBm':''):'not reachable when this report was made'+(RI.lastSeen?' (last seen '+agoTxt(RI.lastSeen)+')':''))+'.',
+      RI.sheetOn?'Google Sheet copy: '+(RI.tryOk&&RI.okTs?'working, last sent '+agoTxt(RI.okTs)+', script '+(RI.script||'unknown')+(RI.match?' (matches the app)':' (needs updating)'):'the last send failed ('+(RI.err||'no reason given')+')')+'.':'Google Sheet copy: not set up on this phone.'
+    ]);
+    sub('Summary');
+    kv([
+      ['Report generated',full(Date.now())+(tz?'  ('+tz+')':'')],
+      ['Covers',first==null?'No entries':stamp(first)+' to '+stamp(last)],
+      ['Charges logged',s.charges+'  ('+typedC.length+' typed, '+autoC.length+' AUTO from the meter)'],
+      ['Charged at wall',s.wall.toFixed(2)+' kWh'],
+      ['Of which solar',s.solar.toFixed(2)+' kWh'],
+      ['Charging spend',money(s.cost)],
+      ['Estimated distance (from kWh)','about '+(window.pembaTotals?pembaTotals(rows).km.toFixed(0):'0')+' km'],
+      ['Estimated cost per km',window.pembaTotals&&pembaTotals(rows).perKm!=null?'R'+pembaTotals(rows).perKm.toFixed(2):'--']
+    ]);
+    box([
+      'How to read this report: cost is the energy taken at the wall times the rate. Eskom and station charges are priced, solar is free.',
+      'Measured charges come from the EV meter. Typed charges use battery % before and after, times the pack size, plus the charging loss.',
+      'Each section starts on its own page. The grey box at the top of each section explains it in plain words.'
+    ]);
+    sub('Contents');
+    note('Summary  ·  What the numbers mean  ·  Charging split  ·  Charge log  ·  Meter sessions and AUTO charges  ·  Google Sheet and sync  ·  Method');
+  }
+
+  // ---------- 2. What the numbers mean ----------
+  if(inc('sum')){
+    section('What the numbers mean');
+    box(['Each figure below is explained in plain words so you can check it against the charge log.']);
+    metric('Estimated distance',window.pembaTotals?'about '+pembaTotals(rows).km.toFixed(0)+' km':'--',
+      'Battery energy stored divided by the estimated use of '+S.effEst+' kWh per 100 km. It is a rough estimate from kWh only. No odometer is used.');
+    metric('Battery energy per 1%',(S.pack/100).toFixed(3)+' kWh',
+      'Each 1% of the '+S.pack+' kWh pack is this much energy. A 1% change in a reading moves the stored energy by about this much.');
+    metric('Charged at wall',s.wall.toFixed(2)+' kWh',
+      'Energy taken from the plug or solar to charge the battery. It is the battery energy stored plus the '+S.loss+'% charging loss.');
+    metric('Estimated cost per km',window.pembaTotals&&pembaTotals(rows).perKm!=null?'R'+pembaTotals(rows).perKm.toFixed(2):'--',
+      'Charging spend divided by the estimated distance. Solar charges count as R'+S.rateSolar.toFixed(2)+' per kWh.');
+  }
+
+  // ---------- 3. Efficiency graphs ----------
+  if(inc('graph')){
+    section('Efficiency graphs');
+    box(['Bars show the energy used per 100 km on each day. Orange bars used more than 14 kWh/100 km. Days with no counted trips are left out.']);
+    const days={};
+    s.T.filter(r=>r.countEff).forEach(r=>{const k=dk(r.ts);if(!days[k])days[k]={km:0,u:0,ts:r.ts};days[k].km+=r.km;days[k].u+=r.used;days[k].ts=Math.min(days[k].ts,r.ts);});
+    const keys=Object.keys(days).sort((a,b)=>days[a].ts-days[b].ts);
+    sub('Daily efficiency (kWh/100 km)');
+    if(keys.length){
+      bars(keys.map(k=>{const d=days[k],e=d.u/d.km*100,dt=new Date(d.ts);return {label:dt.getDate(),sub:dt.toLocaleDateString('en-ZA',{weekday:'short'}),v:e,warn:e>14};}),16,4,S.claim,'claim '+S.claim.toFixed(1));
+    }else note('No trips count toward efficiency in this period.');
+    sub('Efficiency trend');
+    const pts=s.T.filter(r=>r.countEff).sort((a,b)=>a.ts-b.ts).map(r=>({label:new Date(r.ts).toLocaleDateString('en-ZA',{day:'2-digit',month:'short'})+' '+new Date(r.ts).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}),v:r.cons}));
+    if(pts.length&&s.eff!=null)lineChart(pts,S.claim,s.eff);
+    else note('No trips count toward efficiency in this period.');
+  }
+
+  // ---------- 4. Charging split ----------
+  if(inc('graph')){
+    section('Charging split');
+    box(['Shows where the car was charged, by wall energy. Solar is only used on bright days for short periods, so expect it to be a smaller share. Solar costs R'+S.rateSolar.toFixed(2)+' per kWh here.']);
+    const home=s.home,station=s.station,solar=s.solar,tot=home+station+solar;
+    const unl=s.C.filter(c=>!c.where).reduce((x,c)=>x+c.wall,0);
+    const costOf=w=>s.C.filter(c=>c.where===w).reduce((x,c)=>x+c.cost,0);
+    const pc=v=>tot?Math.round(v/tot*100):0;
+    sub('Wall kWh by place');
+    if(!tot)note('No charges with a place chosen in this period.');
+    need(62);
+    const top=y+2;
+    pie([{v:home,c:C.blue},{v:station,c:C.gold},{v:solar,c:C.green}],M+28,top+26,24);
+    [[C.blue,'Home',home],[C.gold,'Station',station],[C.green,'Solar',solar]].forEach((p,i)=>{
+      fill(p[0]);doc.rect(M+64,top+10+i*10,4,4,'F');
+      doc.setFont('helvetica','normal');doc.setFontSize(9);col(C.ink);
+      doc.text(p[1]+'   '+p[2].toFixed(2)+' kWh   ('+pc(p[2])+'%)',M+71,top+13.5+i*10);
+    });
+    y=top+56;
+    kv([
+      ['Home charges',s.C.filter(c=>c.where==='Home').length+' · '+home.toFixed(2)+' kWh · '+money(costOf('Home'))],
+      ['Station charges',s.C.filter(c=>c.where==='Station').length+' · '+station.toFixed(2)+' kWh · '+money(costOf('Station'))],
+      ['Solar charges',s.C.filter(c=>c.where==='Solar').length+' · '+solar.toFixed(2)+' kWh · '+money(costOf('Solar'))],
+      ['Unlogged place (not in the split)',s.C.filter(c=>!c.where).length+' · '+unl.toFixed(2)+' kWh'],
+      ['Average price per kWh at wall','R'+(s.wall?s.cost/s.wall:0).toFixed(2)]
+    ]);
+    note('Rates used: Home R'+S.rateHome.toFixed(2)+' · Station R'+S.rateStation.toFixed(2)+' · Solar R'+S.rateSolar.toFixed(2)+' per kWh · charging loss '+S.loss+'%.');
+  }
+
+  // ---------- 5. Car claim vs real ----------
+  if(inc('car')&&st){
+    section('Car claim vs real');
+    box([
+      'The car screen shows a range for the battery % it has. Your real range is the battery % multiplied by the km per 1% you actually drive.',
+      'A gap of -20% means the screen shows 20% more range than your driving gives. Accuracy is 100% minus the average gap.'
+    ]);
+    kv([
+      ['Accuracy of car claim',st.accuracy.toFixed(1)+'%'],
+      ['Car screen, km per 1% battery',st.carPerPct.toFixed(2)],
+      ['Real driving, km per 1% battery',st.realPerPct.toFixed(2)],
+      ['Average gap',(st.gap>=0?'+':'')+st.gap.toFixed(1)+'%']
+    ]);
+    sub('Car says vs real estimate');
+    carBars(st.C.slice().sort((a,b)=>a.ts-b.ts),st.realPerPct);
+    sub('Readings');
+    table(['Date','Battery','Car says','Real','Gap'],[0,50,85,115,150],
+      st.C.slice().sort((a,b)=>a.ts-b.ts).map(r=>{const real=r.pct*st.realPerPct,d=(real-r.carKm)/r.carKm*100;return [stamp(r.ts),r.pct+'%',r.carKm+' km',real.toFixed(0)+' km',(d>=0?'+':'')+d.toFixed(1)+'%'];}));
+  }
+
+  // ---------- 6. Trip log ----------
+  if(inc('trips')){
+    section('Trip log');
+    box([
+      'One line per trip, oldest first. Battery shows the % at the start and at the end of the trip.',
+      'Counted = used for efficiency. Trips under 5 km, with a battery drop under 2%, or after a gap over 24 hours count toward distance only.'
+    ]);
+    table(['Date','Odometer','km','Battery','kWh','kWh/100','Counted'],[0,34,58,70,100,114,132],
+      s.T.slice().sort((a,b)=>a.ts-b.ts).map(r=>{
+        const start=Math.round(r.pct+drop(r));
+        return [stamp(r.ts),r.odo+' km',r.km.toFixed(1),start+'% to '+r.pct+'%',r.countEff?r.used.toFixed(2):'--',r.countEff?r.cons.toFixed(1):'--',reasonOf(r)];
+      }));
+  }
+
+  // ---------- 7. Charge log ----------
+  if(inc('charges')){
+    section('Charge log');
+    box([
+      'One line per charge. Stored kWh is what went into the battery; wall kWh adds the charging loss and is what you pay for.',
+      'Place shows where the charge came from. Unlogged charges are saved automatically when the battery rises, and use the Home rate until you choose a place.',
+      'Source: Typed = you or Estelle saved a charge log. AUTO = added from the Shelly meter because no charge log followed; the kWh is measured, the battery % is an estimate (marked with ~), and the row is replaced when a charge log is saved.'
+    ]);
+    kv([
+      ['Typed charges',typedC.length+'  ·  '+sumK(typedC,'wall').toFixed(2)+' kWh  ·  '+money(sumK(typedC,'cost'))],
+      ['AUTO charges (from the meter)',autoC.length+'  ·  '+sumK(autoC,'wall').toFixed(2)+' kWh  ·  '+money(sumK(autoC,'cost'))]
+    ]);
+    table(['Date and time','Source','Place','Battery','Stored','Wall kWh','Rate','Cost'],[0,34,52,74,102,122,142,160],
+      s.C.slice().sort((a,b)=>a.ts-b.ts).map(r=>{
+        const from=Math.round(r.pct-r.stored/S.pack*100);
+        return [stamp(r.ts),r.auto?'AUTO':'Typed',r.where||'Unlogged',(r.auto?'~':'')+from+'% to '+(r.auto?'~':'')+r.pct+'%',r.stored.toFixed(2),r.wall.toFixed(2),
+          'R'+(r.wall?r.cost/r.wall:0).toFixed(2),money(r.cost)];
+      }));
+  }
+
+  // ---------- 8. Meter sessions and AUTO charges ----------
+  if(inc('auto')){
+    section('Meter sessions and AUTO charges');
+    box([
+      'The Shelly meter measures every charge at the wall, so a charge that was never logged still appears here as an AUTO charge.',
+      'AUTO charges use the measured kWh. The battery % is an estimate, and the row is replaced as soon as a real charge log is saved.',
+      'Only sessions of 0.1 kWh or more become AUTO charges. Shorter ones, such as a kettle test, are listed below but ignored.'
+    ]);
+    sub('Meter status');
+    kv([
+      ['Meter',RI.meterType==='shelly'?'Shelly EM Gen3':(RI.meterType||'--')],
+      ['Address',RI.meterUrl||'--'],
+      ['When this report was made',RI.meterSeen?'Connected':'Not reachable'+(RI.lastSeen?'  (last seen '+agoTxt(RI.lastSeen)+')':'')],
+      ['Wi-Fi signal',RI.rssi!=null?RI.rssi+' dBm  ('+(RI.rssi>=-60?'excellent':RI.rssi>=-70?'good':RI.rssi>=-80?'weak':'poor')+')':'--'],
+      ['Mains voltage and frequency',RI.volts?RI.volts.toFixed(1)+' V  and  '+(RI.freq||0).toFixed(1)+' Hz':'--']
+    ]);
+    sub('This period at a glance');
+    kv([
+      ['Meter sessions',MSL.length+'  ·  '+sumK(MSL,'kwh').toFixed(2)+' kWh measured'],
+      ['AUTO charges added',autoC.length+'  ·  '+sumK(autoC,'wall').toFixed(2)+' kWh  ·  '+money(sumK(autoC,'cost'))],
+      ['Typed charges',typedC.length+'  ·  '+sumK(typedC,'wall').toFixed(2)+' kWh  ·  '+money(sumK(typedC,'cost'))],
+      ['Share of wall energy logged automatically',s.wall?Math.round(sumK(autoC,'wall')/s.wall*100)+'%':'--']
+    ]);
+    sub('AUTO charges');
+    table(['Date','Start','End','Length','Wall kWh','Battery (est.)','Cost'],[0,32,48,64,86,106,138],
+      autoC.slice().sort((a,b)=>a.ts-b.ts).map(r=>{
+        const ms=MSL.find(x=>x.end_ms===r.ts);
+        return [stamp(r.ts).replace(/,?\s*\d{2}:\d{2}$/,''),ms?hm(ms.start_ms):'--',ms?hm(ms.end_ms):'--',ms?dmin(ms.duration_s):'--',r.wall.toFixed(2),
+          '~'+Math.round(r.pct-r.stored/S.pack*100)+'% to ~'+r.pct+'%',money(r.cost)];
+      }));
+    sub('All meter sessions');
+    const why=x=>x==='below_threshold'?'ended normally':x==='meter_gap'?'meter gap':String(x||'').replace(/_/g,' ');
+    table(['Date','Start','End','Length','kWh','Peak W','Avg W','Result'],[0,30,44,58,80,96,114,132],
+      MSL.slice().sort((a,b)=>a.start_ms-b.start_ms).map(x=>{
+        const used=autoC.some(c=>c.ts===x.end_ms);
+        const res=used?'AUTO charge':(+x.kwh<0.1?'Under 0.1 kWh, ignored':'Covered by a charge log');
+        return [new Date(x.start_ms).toLocaleDateString('en-ZA',{day:'2-digit',month:'short'}),hm(x.start_ms),hm(x.end_ms),dmin(x.duration_s),(+x.kwh).toFixed(2),Math.round(x.peak_w||0),Math.round(x.avg_w||0),res+' ('+why(x.end_reason)+')'];
+      }));
+    note('A session starts when the minute average passes 100 W and ends after one minute under 50 W. Times are shown in '+(tz||'the phone time zone')+'.');
+  }
+
+  // ---------- 9. Google Sheet and sync ----------
+  if(inc('sheet')){
+    section('Google Sheet and sync');
+    box([
+      'The app keeps a copy of your logs in your own Google Sheet called "FARR Q Charge log", so you can open it from any country, on Wi-Fi or mobile data.',
+      'Open the Sheet in Google Sheets or the Drive app and sign in with the same Google account. It is private to you unless you share it.',
+      'Both phones send to the same Sheet and receive each other\'s entries, so the Charge log and AUTO charges stay the same on both.'
+    ]);
+    const chk=(label,state,detail)=>{
+      need(8);
+      fill(state==='ok'?C.green:state==='warn'?C.warn:RED);doc.circle(M+2,y+3.6,1.6,'F');
+      doc.setFont('helvetica','normal');doc.setFontSize(9);col(C.ink);doc.text(label,M+7,y+4.5);
+      doc.setFont('helvetica','bold');doc.text(String(detail),W-M,y+4.5,{align:'right'});
+      draw(C.line);doc.line(M,y+6.8,W-M,y+6.8);y+=7.4;
+    };
+    sub('Status check');
+    chk('Copy to Google Sheet is set up on this phone',RI.sheetOn?'ok':'bad',RI.sheetOn?'Yes':'Not set up');
+    chk('Last send',RI.sheetOn&&RI.tryOk&&RI.okTs?'ok':(RI.sheetOn?'bad':'warn'),RI.okTs?(RI.tryOk?'OK, ':'Last good copy ')+agoTxt(RI.okTs):'Never sent');
+    chk('Last attempt',RI.tryOk===false?'bad':'ok',RI.tryTs?full(RI.tryTs)+(RI.tryOk===false?' (failed)':''):'--');
+    chk('Sheet script version',RI.script?(RI.match?'ok':'warn'):'warn',RI.script?RI.script+(RI.match?'  (matches the app)':'  (app expects '+RI.expectedScript+')'):'unknown');
+    chk('Entries received from the other phone',RI.added||RI.filled?'ok':'warn',(RI.added||0)+' new, '+(RI.filled||0)+' filled in (last sync)');
+    y+=2;
+    if(RI.err)box(['Last problem: '+RI.err]);
+    sub('This phone');
+    const allRows=derive(), allCh=allRows.filter(r=>r.type==='charge');
+    kv([
+      ['Phone name in the Sheet',RI.phone||'(not set)'],
+      ['App version',RI.ver||VER],
+      ['Last Sheet message',RI.msg||'--'],
+      ['Charges in the Sheet copy',allCh.length+'  ('+allCh.filter(c=>c.auto).length+' AUTO)'],
+      ['Readings typed on this phone',(typeof E!=='undefined'?E.length:0)],
+      ['Meter sessions in the Sheet copy',MSALL.length]
+    ]);
+    sub('What each Sheet tab holds');
+    [
+      'Summary: last 7 and 30 days, last reading, and the app and script versions.',
+      'Charge log: every charge, typed or AUTO, with kWh, cost and the phone that sent it.',
+      'Readings: the battery % you typed before and after each charge.',
+      'Meter sessions: every session the Shelly measured, with kWh, minutes and peak watts.',
+      'Phones: each phone, its app version, the script version and when it last synced.',
+      'Charge detail: every Shelly charge with kWh, cost, power, amps, why it ended, battery % before and after, and the loss.',
+      'Battery % readings: each battery % you typed during a charge, with the kWh delivered at that moment.',
+      'Calculated %: the before and after battery % worked out for charges without a Charge log, with a quality check.',
+      'Estimates: charge time, kWh and cost to reach 50 to 95%, the ratio used and how sure the app is.',
+      'Daily totals: charges and cost for each day.',
+      'Alerts: the alerts the phone recorded, with the full text.',
+      'Settings log: a row each time a rate or car setting changes.',
+      'Minute data: the watts and amps of every charge, minute by minute, with the running kWh and cost.'
+    ].forEach(t=>note('- '+t));
+  }
+
+  // ---------- 12. Settings and method ----------
+  if(inc('method')){
+    section('Settings and method');
+    sub('Settings used');
+    kv([
+      ['Home rate',money(S.rateHome)+' per kWh'],
+      ['Station rate',money(S.rateStation)+' per kWh'],
+      ['Solar rate',money(S.rateSolar)+' per kWh'],
+      ['Charging loss',S.loss+'%'],
+      ['Battery pack',S.pack+' kWh'],
+      ['Estimated use (km estimate only)',S.effEst+' kWh/100 km']
+    ]);
+    sub('Data quality');
+    kv([
+      ['Charges with no place chosen',s.C.filter(c=>!c.where).length]
+    ]);
+    sub('Method and assumptions');
+    [
+      'Charge energy = battery % rise x '+S.pack+' kWh; wall energy adds '+S.loss+'% charging loss.',
+      'Cost uses the Eskom (home), Station or Solar rate in Settings. Unlogged charges use the Eskom rate.',
+      'Estimated distance = battery energy stored divided by the estimated use in Settings. No odometer is used.',
+      'Battery % is read in whole steps, so each typed charge can be off by up to 1%. Measured charges do not have this error.',
+      'AUTO charges come from the Shelly meter: the kWh is measured at the wall, and a typed charge log replaces the AUTO row.',
+      'Times are shown in the time zone of the phone that made this report.'
+    ].forEach(t=>note('- '+t));
+  }
+
+
+  // ---------- 2.2.2: charge graphs, detail, estimates, payback ----------
+  if(RD){
+    const nStep=(mx,n)=>{const raw=mx/n,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p;};
+    const dlong=ts=>new Date(ts).toLocaleDateString('en-ZA',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+    const dshort=ts=>new Date(ts).toLocaleDateString('en-ZA',{day:'2-digit',month:'short'});
+    const why=x=>x==='below_threshold'?'ended normally':x==='meter_gap'?'meter gap':String(x||'').replace(/_/g,' ');
+    const how=r=>!r?'--':r.status==='real'?'Charge log':r.status==='calc'?'Calculated ('+r.quality+')':r.status==='check'?'Check readings':'Not recorded yet';
+    const pc=v=>v==null||isNaN(v)?'--':Math.round(v)+'%';
+    const pdfChart=(name,unit,pts,colr,marks,t0,t1)=>{
+      const HC=30,x0=M+11,x1=W-M-3;
+      need(HC+24);
+      doc.setFont('helvetica','bold');doc.setFontSize(8.5);col(C.ink);doc.text(name,M,y+4);
+      const top=y+7,base=top+HC;
+      let mx=0;pts.forEach(p=>{if(p[1]>mx)mx=p[1];});
+      let step,tp;
+      if(unit==='R'){step=5;tp=Math.max(5,Math.ceil(mx/5)*5);while(tp/step>8){step*=2;tp=Math.ceil(mx/step)*step;}}
+      else{mx=Math.max(mx*1.05,unit==='A'?2:100);step=nStep(mx,4);tp=Math.ceil(mx/step)*step;}
+      const X=t=>x0+(x1-x0)*(t-t0)/(t1-t0),Y=v=>base-HC*v/tp;
+      doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setLineWidth(0.15);
+      for(let v=0;v<=tp+1e-6;v+=step){draw(C.line);doc.line(x0,Y(v),x1,Y(v));col(C.muted);doc.text((unit==='R'?'R':'')+(unit==='A'?v.toFixed(1):Math.round(v)),x0-1.5,Y(v)+1,{align:'right'});}
+      const span=t1-t0,tstep=[1,2,5,10,15,30,60,120,240].map(m=>m*60000).find(m=>span/m<=7)||240*60000;
+      for(let t=Math.ceil(t0/tstep)*tstep;t<=t1;t+=tstep){draw(C.line);doc.line(X(t),top,X(t),base);col(C.muted);doc.text(hm(t),X(t),base+3.5,{align:'center'});}
+      draw(colr);doc.setLineWidth(0.4);
+      for(let i=1;i<pts.length;i++)doc.line(X(pts[i-1][0]),Y(pts[i-1][1]),X(pts[i][0]),Y(pts[i][1]));
+      doc.setLineWidth(0.2);
+      const last=[-99,-99,-99];
+      marks.forEach(m=>{
+        if(m.ts<t0||m.ts>t1)return;
+        const px=X(m.ts);draw(C.gold);doc.setLineDashPattern([1,1],0);doc.line(px,top,px,base);doc.setLineDashPattern([],0);
+        let l=0;while(l<2&&px-last[l]<9)l++;last[l]=px;
+        fill(C.gold);doc.rect(px-4,base+5+l*3.6,8,3.2,'F');col(C.ink);doc.setFontSize(5.5);doc.text(Math.round(m.pct)+'%',px,base+7.4+l*3.6,{align:'center'});
+      });
+      y=base+17;
+    };
+
+    // ---- 13. Charge graphs
+    section('Charge graphs');
+    box([
+      'One set of graphs for every Shelly charge in this period: power (W), current (A) and running cost (Rands, in R5 steps), against the time of day.',
+      'Gold marks show the battery % you entered during the charge. Cost uses the Home rate of R'+S.rateHome.toFixed(2)+' per kWh.',
+      'A graph needs the Shelly minute records on this phone. They are read from the Shelly when you are on home Wi-Fi.'
+    ]);
+    const gl=RD.items.slice(-20);
+    if(!gl.length)note('No Shelly charges in this period.');
+    gl.forEach(it=>{
+      need(182);
+      const x=it.s;
+      doc.setFont('helvetica','bold');doc.setFontSize(10);col(C.ink);
+      doc.text(dlong(x.start_ms)+'   '+hm(x.start_ms)+' to '+hm(x.end_ms)+'  ('+dmin(x.duration_s)+')',M,y+5);y+=8;
+      doc.setFont('helvetica','normal');doc.setFontSize(8);col(C.muted);
+      const pcs=it.marks.length?it.marks.map(m=>Math.round(m.pct)+'% at '+hm(m.ts)).join(', '):'none entered';
+      doc.text(doc.splitTextToSize((+x.kwh).toFixed(2)+' kWh at the wall  ·  '+money(it.cost)+'  ·  peak '+Math.round(x.peak_w||0)+' W  ·  average '+Math.round(x.avg_w||0)+' W'+(it.avgA!=null?'  ·  average '+it.avgA.toFixed(1)+' A':'')+'  ·  battery %: '+pcs+'  ·  '+why(x.end_reason),W-2*M),M,y+3);y+=11;
+      if(!it.pts||it.pts.length<2){note('Minute data for this charge is not on this phone yet. Open the app on home Wi-Fi, then make the report again.');y+=4;return;}
+      const t0=it.pts[0][0]-60000,t1=it.pts[it.pts.length-1][0]+120000;
+      let k=0;const cost=it.pts.map(p=>{k+=p[1]/60000;return [p[0]+60000,k*S.rateHome];});
+      pdfChart('Power (W)','W',it.pts.map(p=>[p[0]+30000,p[1]]),C.cyan,it.marks,t0,t1);
+      pdfChart('Current (A)','A',it.pts.map(p=>[p[0]+30000,p[2]]),C.gold,it.marks,t0,t1);
+      pdfChart('Cost (Rands)','R',cost,C.green,it.marks,t0,t1);
+    });
+
+    // ---- 14. Charge detail
+    section('Charge detail');
+    box([
+      'Every Shelly charge of 0.1 kWh or more in this period, with the times, energy, cost, power and current.',
+      'Battery kWh is the wall kWh divided by the wall-to-battery ratio ('+RD.R.toFixed(2)+', '+(RD.M.ratio!=null?'measured from your charges':'from the '+S.loss+'% loss in Settings')+'). Lost is the difference.',
+      'Average current is read from the Shelly minute records; "--" means those are not on this phone yet.'
+    ]);
+    sub('Times, energy and power');
+    table(['Date','Start','End','Length','Wall kWh','Battery kWh','Cost','Peak W','Avg W','Avg A'],[0,22,36,50,68,86,106,122,138,154],
+      RD.items.map(it=>[dshort(it.s.start_ms),hm(it.s.start_ms),hm(it.s.end_ms),dmin(it.s.duration_s),(+it.s.kwh).toFixed(2),it.batt.toFixed(2),money(it.cost),Math.round(it.s.peak_w||0),Math.round(it.s.avg_w||0),it.avgA!=null?it.avgA.toFixed(1):'--']));
+    sub('Battery %, loss and how each charge ended');
+    table(['Date','Before %','After %','How known','Added %','Lost kWh','Lost R','Lost W','Ended'],[0,20,36,52,92,108,124,138,152],
+      RD.items.map(it=>{const r=it.rec;return [dshort(it.s.start_ms),r&&r.before!=null?(r.status==='real'?'~':'')+pc(r.before):'--',r&&r.after!=null?pc(r.after):'--',how(r),r?'+'+r.added.toFixed(0)+'%':'--',it.lossK.toFixed(2),money(it.lossR),Math.round(it.lossW),why(it.s.end_reason)];}));
+    note('Times are shown in '+(tz||'the phone time zone')+'. "Charge log" rows take the battery % from the charge log you typed; the before % there is that value minus the % the charge added.');
+
+    // ---- 15. Battery % readings during charges
+    section('Battery % readings during charges');
+    box(['These are the battery % values you typed when the app asked during a Shelly charge (at the start, every 30 minutes or more, or when the power dropped).','Each one is stored with its time and the kWh delivered at that moment. They are kept apart from your Anytime and Charge logs and never change efficiency.']);
+    table(['Date','Time','Battery %','kWh delivered then','Charge started'],[0,26,44,70,112],
+      RD.pct.map(p=>{const it=RD.items.find(z=>p.ts>=z.s.start_ms-600000&&p.ts<=z.s.end_ms+600000);return [dshort(p.ts),hm(p.ts),Math.round(p.pct)+'%',p.kwh==null?'--':(+p.kwh).toFixed(2),it?hm(it.s.start_ms):'--'];}));
+
+    // ---- 16. Calculated battery %
+    section('Calculated battery %');
+    box([
+      'When a Shelly charge has no Charge log, the app works the battery % backwards from your next Anytime log: before % = that reading minus the % the charge added.',
+      'The % added is the wall kWh divided by the ratio ('+RD.R.toFixed(2)+'), divided by the '+S.pack+' kWh pack. A real Charge log replaces the calculated row.',
+      'As a check, the app also works forward from your reading before the charge using your recent kWh per km. "good" means both agree within 3 points and the reading was taken within 14 hours.',
+      'These numbers are shown only. They are not used in efficiency, km, cost or any total.'
+    ]);
+    table(['Charge','Wall kWh','Added %','Before %','After %','Based on','Check (fwd / diff)','Status'],[0,24,40,54,70,86,118,150],
+      RD.calc.filter(r=>r.s.end_ms>=(o.cut||0)).map(r=>[dshort(r.s.start_ms)+' '+hm(r.s.start_ms),(+r.s.kwh).toFixed(2),'+'+r.added.toFixed(0)+'%',r.before!=null?pc(r.before):'--',r.after!=null?pc(r.after):'--',r.method||'--',r.fwd!=null?pc(r.fwd)+' / '+r.diff.toFixed(1):'--',r.status==='calc'?'Calculated ('+r.quality+')':r.status==='real'?'Charge log':r.status==='check'?'Check readings':'Not recorded yet']));
+
+    // ---- 17. Learning and estimates
+    section('Learning and estimates');
+    box([
+      'The app learns from your stored Shelly sessions and battery % readings. Until it has enough history it uses the '+S.pack+' kWh pack and the '+S.loss+'% loss from Settings.',
+      'Confidence: Rough is 0 to 2 sessions, Improving is 3 to 9, Good is 10 or more.',
+      'AUTO rules are not used. Time, kWh and cost to 100% come from the pack size, the ratio and the typical charge power.'
+    ]);
+    kv([
+      ['Confidence',RD.conf],
+      ['Shelly sessions stored',RD.M.total],
+      ['Sessions used for learning',RD.M.n],
+      ['Full charges used for the taper',RD.M.taper.length],
+      ['Battery % readings kept for learning',RD.M.nAnch],
+      ['Wall-to-battery ratio used',RD.R.toFixed(3)+'  ('+(RD.M.ratio!=null?'measured':'from Settings')+')'],
+      ['Loss used',((RD.R-1)*100).toFixed(1)+'%'],
+      ['Typical charge power',Math.round(RD.typW)+' W']
+    ]);
+    sub('Time, kWh and cost to reach 100%');
+    table(['From','Time left','Wall kWh','Battery kWh','Cost','Based on'],[0,18,52,76,102,124],
+      RD.est.map(e=>[e.p+'%',dmin(e.min*60),e.wall.toFixed(1),e.batt.toFixed(1),money(e.cost),e.basis]));
+    note('Cost uses the Home rate of R'+S.rateHome.toFixed(2)+' per kWh. These are estimates made when the report was created.');
+
+    // ---- 18. Loss and cost of charging
+    section('Loss and cost of charging');
+    const tw=RD.items.reduce((a,it)=>a+(+it.s.kwh),0),tl=RD.items.reduce((a,it)=>a+it.lossK,0),th=RD.items.reduce((a,it)=>a+it.s.duration_s,0)/3600;
+    box(['Charging loses some energy as heat in the charger and the car. The wall meter sees the loss, the battery does not.','The loss shown here is the wall kWh minus the battery kWh, using the ratio of '+RD.R.toFixed(2)+'. A measured ratio needs 3 charges with a start and end battery %.']);
+    kv([
+      ['Charges counted',RD.items.length],
+      ['Energy at the wall',tw.toFixed(2)+' kWh'],
+      ['Energy into the battery',(tw-tl).toFixed(2)+' kWh'],
+      ['Lost as heat',tl.toFixed(2)+' kWh  ('+(tw?(tl/tw*100).toFixed(1):'0')+'% of the wall energy)'],
+      ['Cost of the loss',money(tl*S.rateHome)],
+      ['Average loss while charging',th>0?Math.round(tl*1000/th)+' W':'--'],
+      ['Loss on a full 42.7 kWh charge',((S.pack*RD.R)-S.pack).toFixed(2)+' kWh  ·  '+money(((S.pack*RD.R)-S.pack)*S.rateHome)]
+    ]);
+
+    // ---- 19. Saving and payback
+    section('Saving and payback');
+    {
+      const rowsAll=rowsFor('all'),sa=summ(rowsAll),pk=S.compare/100*S.petrol,ek=sa.perKm;
+      const tsAll=rowsAll.map(r=>r.ts),spanD=tsAll.length>1?Math.max(1,(Math.max(...tsAll)-Math.min(...tsAll))/864e5):1;
+      const kmDay=sa.km/spanD,savKm=ek==null?null:pk-ek,saved=savKm==null?null:savKm*sa.km;
+      box(['Compares your electric driving with a petrol car using '+S.compare.toFixed(1)+' L/100 km at R'+S.petrol.toFixed(2)+' per litre.','The payback estimate divides the car price by what you save per km, at your driving so far. It is rough, because it uses only the period of data in the app and counts fuel only, not servicing, tyres or insurance.']);
+      kv([
+        ['Data covers',spanD.toFixed(1)+' days'],
+        ['Distance driven',sa.km.toFixed(1)+' km  ('+kmDay.toFixed(1)+' km a day)'],
+        ['Electric cost per km',ek==null?'--':'R'+ek.toFixed(2)],
+        ['Petrol cost per km','R'+pk.toFixed(2)],
+        ['Saving per km',savKm==null?'--':'R'+savKm.toFixed(2)],
+        ['Saved so far',saved==null?'--':money(saved)],
+        ['Saving per month at this pace',savKm==null?'--':money(savKm*kmDay*30.4)],
+        ['Saving per year at this pace',savKm==null?'--':money(savKm*kmDay*365)],
+        ['Car price (Settings)',money(+S.carPrice||0)],
+        ['Km to pay for the car',savKm>0&&S.carPrice?Math.round(S.carPrice/savKm).toLocaleString('en-ZA')+' km':'--'],
+        ['Time to pay for the car',savKm>0&&S.carPrice&&kmDay>0?(S.carPrice/(savKm*kmDay*365)).toFixed(1)+' years':'--']
+      ]);
+    }
+
+    // ---- 20. Alerts log
+    section('Alerts log');
+    box(['Alerts the phone recorded in this period, newest first: charging started and finished, meter online or offline, and any warnings.']);
+    // 2.2.2.1: newest first by the time the event happened, and the full text (long text wraps onto the next line)
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+    const alRows=[];
+    RD.alerts.slice().sort((a,b)=>b.ts-a.ts).slice(0,90).forEach(a=>{
+      const lines=doc.splitTextToSize(String(a.text||''),108);
+      lines.forEach((ln,k)=>alRows.push(k===0?[dshort(a.ts),hm(a.ts),String(a.type||'').replace(/_/g,' '),ln]:['','','',ln]));
+    });
+    table(['Date','Time','Type','What happened'],[0,22,38,70],alRows);
+  }
+
+  // ---------- Footers ----------
+  const total=doc.getNumberOfPages();
+  for(let i=1;i<=total;i++){
+    doc.setPage(i);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);col(C.muted);
+    draw(C.line);doc.line(M,H-10.5,W-M,H-10.5);
+    doc.text('PEMBA CHARGE · '+VER+' · generated '+full(Date.now()),M,H-7);
+    doc.text('Page '+i+' of '+total,W-M,H-7,{align:'right'});
+    if(i>1){doc.text('PEMBA CHARGE report · '+periodLabel,M,8);draw(C.line);doc.line(M,10,W-M,10);}
+  }
+  return doc;
+}
+
+/* ---------- screens ---------- */
+function go(id){
+  if(!E.length&&!['set','meter','relay','alerts','conn','info','learn'].includes(id)){toast('Enter your starting point in Settings first');id='set';}
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  const navKey={home:'home',trip:'home',charge:'home',hist:'hist',graph:'graph',set:'graph',share:'share',meter:'graph',relay:'graph',alerts:'graph',conn:'graph',info:'graph',learn:'graph'}[id];
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===navKey));
+  window.scrollTo(0,0);
+  if(id==='home')renderHome();
+  if(id==='hist')renderHist();
+  if(id==='graph')renderGraph();
+  if(id==='set')renderSettings();
+  if(id==='share')renderShare();
+  if(id==='trip')openTrip();
+  if(id==='charge')openCharge();
+  if(window.farrOnScreen)farrOnScreen(id);
+}
+function setRange(btn){
+  range=btn.dataset.d==='today'?'today':+btn.dataset.d;
+  document.querySelectorAll('#rangeChips .chip').forEach(c=>c.classList.toggle('on',c===btn));
+  renderHome();
+}
+function renderHome(){
+  if(!E.length){
+    document.getElementById('homeAlert').innerHTML='<div class="card"><div class="small">Set your starting point in Settings first: your current odometer and battery %.</div></div>';
+    document.getElementById('effBig').textContent='--';document.getElementById('effSub').textContent='';
+    document.getElementById('homeBar').innerHTML='';document.getElementById('homeRows').innerHTML='';
+    return;
+  }
+  const rows=rowsFor(range), s=summ(rows);
+  const U=derive().filter(r=>r.type==='charge'&&!r.where).length;
+  const days=(Date.now()-lastState().ts)/864e5, dd=Math.floor(days);
+  let a='';
+  if(U)a+=`<div class="card" style="border-color:var(--gold)"><div class="small" style="color:var(--gold)">${U} charge${U>1?'s':''} still need${U>1?'':'s'} Home, Station or Solar. Open History to set ${U>1?'them':'it'}.</div></div>`;
+  if(dd>=1)a+=`<div class="card" style="border-color:var(--gold)"><div class="small" style="color:var(--gold)">Last reading ${dd} day${dd>1?'s':''} ago. Log a reading when you can.</div></div>`;
+  document.getElementById('homeAlert').innerHTML=a;
+  document.getElementById('effLabel').textContent=range==='today'?'Efficiency, today':'Efficiency, last '+(range===1?'day':range+' days');
+  document.getElementById('effBig').textContent=s.eff==null?'--':s.eff.toFixed(1)+' kWh/100 km';
+  document.getElementById('effSub').textContent=s.eff==null?'No trips in this range yet':
+    (s.eff<=S.claim?'Within':'Above')+' Chery claim of '+S.claim.toFixed(1)+' kWh/100 km';
+  document.getElementById('homeBar').innerHTML=barSVG(rows);
+  document.getElementById('homeRows').innerHTML=[
+    row('Distance',s.km.toFixed(1)+' km'),
+    row('Energy used (battery)',s.used.toFixed(2)+' kWh'),
+    row('Charged (wall)',s.wall.toFixed(2)+' kWh'),
+    row('Charging spend',money(s.cost)),
+    row('Electric cost per km',s.perKm==null?'--':'R'+s.perKm.toFixed(2)),
+    row('Petrol cost per km ('+S.compare+' L/100 km at R'+S.petrol.toFixed(2)+')','R'+(S.compare/100*S.petrol).toFixed(2))
+  ].join('');
+}
+
+/* anytime log */
+function openTrip(){
+  document.getElementById('tStamp').textContent=stamp(Date.now());
+  document.getElementById('tOdo').value='';
+  document.getElementById('tPct').value='';
+  document.getElementById('tCar').value='';
+  previewTrip();
+}
+function tripCheck(){
+  const L=lastState(), odo=parseFloat(document.getElementById('tOdo').value), pct=parseFloat(document.getElementById('tPct').value);
+  const cv=document.getElementById('tCar').value.trim(), carKm=cv===''?null:parseFloat(cv);
+  if(isNaN(odo)||isNaN(pct))return {ok:false,msg:'Enter the odometer and battery %.'};
+  if(pct<0||pct>100)return {ok:false,msg:'Battery % must be between 0 and 100.'};
+  if(carKm!==null&&(isNaN(carKm)||carKm<=0))return {ok:false,msg:'Car screen range must be a positive number, or leave it blank.'};
+  if(pct>L.pct){
+    if(odo<L.odo)return {ok:false,msg:'Odometer cannot go below '+L.odo+' km.'};
+    return {ok:true,charged:true,odo,pct,carKm,from:L.pct};
+  }
+  const km=odo-L.odo;
+  if(km<=0)return {ok:false,msg:'Odometer must be above '+L.odo+' km.'};
+  const used=(L.pct-pct)/100*S.pack;
+  if(used<=0)return {ok:false,msg:'Battery % has not dropped since the last reading ('+L.pct+'%).'};
+  return {ok:true,odo,pct,km,used,cons:used/km*100,carKm};
+}
+function previewTrip(){
+  const c=tripCheck(), el=document.getElementById('tPrev');
+  if(!c.ok){el.textContent=c.msg;return;}
+  if(c.charged){el.textContent='Battery went up from '+c.from+'% to '+c.pct+'%, so a charge is saved. Choose Home, Station or Solar in History.';return;}
+  el.textContent=`This trip: ${c.km.toFixed(1)} km · ${c.used.toFixed(2)} kWh · ${c.cons.toFixed(1)} kWh/100 km`+(c.carKm!=null&&c.pct>0?` · car shows ${c.carKm} km (${(c.carKm/c.pct).toFixed(2)} km per 1%)`:'');
+}
+function saveTrip(){
+  const c=tripCheck();
+  if(!c.ok)return toast(c.msg);
+  const extra=c.carKm!=null?{carKm:c.carKm}:{};
+  if(c.charged){
+    E.push({kind:'charge',ts:Date.now(),odo:c.odo,pct:c.pct,where:null,unlogged:true,...extra});
+    save();toast('Charge saved. Set Home, Station or Solar in History.');
+  }else{
+    E.push({kind:'trip',ts:Date.now(),odo:c.odo,pct:c.pct,...extra});
+    save();toast('Trip saved');
+  }
+  go('home');
+}
+
+/* charge log */
+function openCharge(){
+  const L=lastState();
+  document.getElementById('cStamp').textContent=stamp(Date.now());
+  document.getElementById('cPct').value='';
+  document.getElementById('cOdo').value=L.odo;
+  document.getElementById('cCar').value='';
+  setWhere('Home');
+}
+function setWhere(w){
+  where=w;
+  document.getElementById('wHome').classList.toggle('on',w==='Home');
+  document.getElementById('wStation').classList.toggle('on',w==='Station');
+  document.getElementById('wSolar').classList.toggle('on',w==='Solar');
+  previewCharge();
+}
+function chargeCheck(){
+  const L=lastState(), pct=parseFloat(document.getElementById('cPct').value), odo=parseFloat(document.getElementById('cOdo').value);
+  const cv=document.getElementById('cCar').value.trim(), carKm=cv===''?null:parseFloat(cv);
+  if(isNaN(pct)||pct<0||pct>100)return {ok:false,msg:'Enter the battery % now (0 to 100).'};
+  if(isNaN(odo)||odo<L.odo)return {ok:false,msg:'Enter the odometer (at least '+L.odo+' km).'};
+  if(carKm!==null&&(isNaN(carKm)||carKm<=0))return {ok:false,msg:'Car screen range must be a positive number, or leave it blank.'};
+  if(pct===L.pct)return {ok:false,msg:'Battery % is the same as the last reading ('+L.pct+'%).'};
+  if(pct<L.pct)return {ok:true,asTrip:true,odo,pct,carKm};
+  const stored=(pct-L.pct)/100*S.pack, m=where!=='Station'&&window.measuredBetween?measuredBetween(L.ts,Date.now()):null, wall=m?m.kwh:stored*(1+S.loss/100);
+  const rate=where==='Station'?S.rateStation:where==='Solar'?S.rateSolar:S.rateHome;
+  return {ok:true,pct,odo,carKm,stored,wall,cost:wall*rate,rate,measured:!!m};
+}
+function previewCharge(){
+  const c=chargeCheck(), el=document.getElementById('cPrev');
+  if(!c.ok){el.textContent=c.msg;return;}
+  if(c.asTrip){el.textContent='Battery is lower than the last reading, so this will be saved as a trip.';return;}
+  el.textContent=c.measured?`Stored ${c.stored.toFixed(2)} kWh · wall ${c.wall.toFixed(2)} kWh measured by the EV meter · ${money(c.cost)} at R${c.rate.toFixed(2)}/kWh`:`Stored ${c.stored.toFixed(2)} kWh · wall ${c.wall.toFixed(2)} kWh (+${S.loss}% loss) · ${money(c.cost)} at R${c.rate.toFixed(2)}/kWh`;
+}
+function saveCharge(){
+  const c=chargeCheck();
+  if(!c.ok)return toast(c.msg);
+  const extra=c.carKm!=null?{carKm:c.carKm}:{};
+  if(c.asTrip){
+    E.push({kind:'trip',ts:Date.now(),odo:c.odo,pct:c.pct,...extra});
+    save();toast('Saved as a trip: battery was lower than the last reading');
+  }else{
+    E.push({kind:'charge',ts:Date.now(),odo:c.odo,pct:c.pct,where,...extra});
+    save();toast('Charge saved');
+  }
+  go('home');
+}
+function setWhereOf(ts,w){
+  const e=E.find(x=>x.ts===ts);
+  if(!e)return;
+  e.where=w;delete e.unlogged;save();renderAll();toast('Set to '+w);
+}
+
+/* history */
+function setHist(btn){
+  hRange=btn.dataset.d==='all'?'all':+btn.dataset.d;
+  document.querySelectorAll('#histChips .chip').forEach(c=>c.classList.toggle('on',c===btn));
+  renderHist();
+}
+function renderHist(){
+  const rows=rowsFor(hRange), s=summ(rows);
+  document.getElementById('histTotals').innerHTML=
+    row('Trips',s.trips)+row('Distance',s.km.toFixed(1)+' km')+row('Efficiency',s.eff==null?'--':s.eff.toFixed(1)+' kWh/100 km')+
+    row('Charges',s.charges)+row('Charged (wall)',s.wall.toFixed(2)+' kWh')+row('Charging spend',money(s.cost));
+  document.getElementById('carCompare').innerHTML=carCompareHTML(rows);
+  const list=[...rows].reverse();
+  document.getElementById('histList').innerHTML=list.length?list.map(r=>{
+    if(r.type==='trip')return `<div class="row"><div><span class="tag t">Trip</span><span class="tag">ESTIMATED</span>${stamp(r.ts)}<div class="small">${r.km.toFixed(1)} km · ${r.countEff?r.used.toFixed(2)+' kWh · '+r.cons.toFixed(1)+' kWh/100 km':'distance only (not in efficiency)'}</div></div><div class="small">${r.odo} km<br>${r.pct}%</div></div>`;
+    const w=r.where?r.where:'Unlogged';
+    const btns=r.where?'':`<div class="pair" style="margin-top:6px"><button class="chip" onclick="setWhereOf(${r.ts},'Home')">Home</button><button class="chip" onclick="setWhereOf(${r.ts},'Station')">Station</button><button class="chip" onclick="setWhereOf(${r.ts},'Solar')">Solar</button></div>`;
+    return `<div class="row"><div><span class="tag c">Charge</span>${r.measured?'<span class="tag g">MEASURED</span>':'<span class="tag">ESTIMATED</span>'}${r.auto?'<span class="tag">AUTO</span>':''}${window.farrFullTag?farrFullTag(r):''}${stamp(r.ts)}<div class="small">${w} · ${r.wall.toFixed(2)} kWh wall${r.auto?' · added from the meter, no charge log yet':''}</div>${window.farrCalcTag?farrCalcTag(r):''}${btns}</div><div class="small">${money(r.cost)}<br>${r.auto?'≈':''}${r.pct}%</div></div>`;
+  }).join(''):'<div class="small">Nothing logged in this range.</div>';
+}
+
+/* car claim vs real */
+function carStats(rows){
+  const s=summ(rows);
+  const C=rows.filter(r=>r.carKm!=null&&r.pct>0);
+  if(!C.length||s.eff==null)return null;
+  const realPerPct=S.pack/s.eff;
+  const carPerPct=C.reduce((x,r)=>x+r.carKm/r.pct,0)/C.length;
+  const gap=C.reduce((x,r)=>x+((r.pct*realPerPct-r.carKm)/r.carKm*100),0)/C.length;
+  return {C,realPerPct,carPerPct,gap,accuracy:100-Math.abs(gap)};
+}
+function carCompareHTML(rows){
+  const hdr='<div class="label" style="margin-bottom:8px">Car claim vs real</div>';
+  const st=carStats(rows);
+  if(!st)return hdr+'<div class="small">Add the car screen range on the Anytime log to compare it with your real driving.</div>';
+  const sumRows=row('Accuracy of car claim',st.accuracy.toFixed(1)+'%')+
+    row('Car screen, km per 1%',st.carPerPct.toFixed(2))+
+    row('Real driving, km per 1%',st.realPerPct.toFixed(2))+
+    row('Average gap',(st.gap>=0?'+':'')+st.gap.toFixed(1)+'%');
+  const list=st.C.slice().reverse().map(r=>{
+    const real=r.pct*st.realPerPct, d=(real-r.carKm)/r.carKm*100;
+    return `<div class="row"><div>${stamp(r.ts)}<div class="small">${r.pct}% · car says ${r.carKm} km</div></div>`+
+      `<div style="text-align:right">real ${real.toFixed(0)} km<br><span class="small">${d>=0?'+':''}${d.toFixed(1)}%</span></div></div>`;
+  }).join('');
+  return hdr+sumRows+'<div class="sep"></div>'+list;
+}
+function carBarSVG(rows){
+  const st=carStats(rows);
+  if(!st)return '<div class="small">No car readings yet. Add the car screen range on the Anytime log.</div>';
+  const W=320,H=210,L=34,R=6,T0=22,B=40,pw=W-L-R,ph=H-T0-B;
+  const data=st.C.map(r=>({car:r.carKm,real:r.pct*st.realPerPct,ts:r.ts}));
+  const max=Math.max(...data.map(d=>Math.max(d.car,d.real)))*1.1;
+  const y=v=>T0+ph*(1-v/max), bw=pw/data.length, w=bw*0.36;
+  let g=`<text x="${W/2}" y="14" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Accuracy ${st.accuracy.toFixed(1)}%</text>`;
+  for(let i=0;i<=4;i++){
+    const v=Math.round(max*i/4);
+    g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-4}" y="${y(v)+3}" text-anchor="end" fill="var(--muted)" font-size="9">${v}</text>`;
+  }
+  data.forEach((d,i)=>{
+    const cx=L+i*bw+bw*0.1, rx=cx+w+bw*0.04, dt=new Date(d.ts);
+    g+=`<rect x="${cx}" y="${y(d.car)}" width="${w}" height="${T0+ph-y(d.car)}" rx="2" fill="var(--gold)"><title>Car says ${d.car} km</title></rect>`;
+    g+=`<rect x="${rx}" y="${y(d.real)}" width="${w}" height="${T0+ph-y(d.real)}" rx="2" fill="var(--blue)"><title>Real ${d.real.toFixed(0)} km</title></rect>`;
+    g+=`<text x="${cx+w}" y="${T0+ph+14}" text-anchor="middle" fill="var(--text)" font-size="9">${dt.getDate()}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}">${g}</svg><div class="small">Gold = car screen range · blue = real estimate at the same battery %.</div>`;
+}
+
+/* graphs */
+function renderGraph(){
+  const rows=rowsFor('all');
+  document.getElementById('gBar').innerHTML=barSVG(rows);
+  document.getElementById('gPie').innerHTML=pieSVG(rows);
+  document.getElementById('gLine').innerHTML=lineSVG(rows);
+  const gc=document.getElementById('gCar');if(gc)gc.innerHTML=carBarSVG(rows);
+}
+
+/* settings */
+const SET_FIELDS=['rateHome','rateStation','rateSolar','loss','pack','claim','petrol','compare','carPrice'];
+function renderSettings(){
+  SET_FIELDS.forEach(k=>document.getElementById('set_'+k).value=S[k]);
+  document.getElementById('themeName').textContent=S.theme==='light'?'Light':'Griffin dark';
+  applyTheme();
+}
+function setVal(k,v){
+  const n=parseFloat(v);
+  if(isNaN(n)||n<0)return toast('Enter a positive number.');
+  S[k]=n;save();renderAll();toast('Saved');
+}
+function toggleTheme(){
+  S.theme=S.theme==='light'?'dark':'light';save();applyTheme();
+  document.getElementById('themeName').textContent=S.theme==='light'?'Light':'Griffin dark';
+}
+function applyTheme(){document.body.classList.toggle('light',S.theme==='light');}
+function startFresh(){
+  const odo=parseFloat(document.getElementById('st_odo').value), pct=parseFloat(document.getElementById('st_pct').value);
+  if(isNaN(odo)||odo<0)return toast('Enter the current odometer.');
+  if(isNaN(pct)||pct<0||pct>100)return toast('Enter the battery % (0 to 100).');
+  E=[{kind:'start',ts:Date.now(),odo,pct}];
+  save();renderAll();go('home');toast('Starting point saved');
+}
+async function shareApp(){
+  const url=window.FARR_APP_URL||window.location.href.split('#')[0];
+  if(navigator.share){
+    try{await navigator.share({title:'PEMBA CHARGE',text:'Cherry Q efficiency tracker',url});return;}
+    catch(e){if(e&&e.name==='AbortError')return;}
+  }
+  try{await navigator.clipboard.writeText(url);toast('Link copied');}
+  catch(e){toast(url);}
+}
+function csvText(){
+  const head='date,time,kind,odometer_km,battery_pct,where,car_km,timestamp_ms';
+  const lines=[...E].sort((a,b)=>a.ts-b.ts).map(e=>{
+    const d=new Date(e.ts);
+    return [d.toLocaleDateString('en-ZA'),d.toLocaleTimeString('en-ZA'),e.kind,e.odo,e.pct,e.where||'',e.carKm!=null?e.carKm:'',e.ts].join(',');
+  });
+  const extra=window.farrBackupExtra?farrBackupExtra():[];
+  return head+'\n'+lines.concat(extra).join('\n');
+}
+async function exportCSV(){
+  const name='FARR_Q_backup_'+dk(Date.now()).replace(/-/g,'_')+'.csv';
+  const text=csvText();
+  const file=new File([text],name,{type:'text/csv'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:'FARR Q backup'});}catch(e){}
+    return;
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/csv'}));a.download=name;a.click();
+  toast('Backup CSV downloaded');
+}
+function mergeCSV(text){
+  const lines=text.split(/\r?\n/).filter(l=>l.trim());
+  const head=lines.shift()||'';
+  if(head.indexOf('timestamp_ms')<0)throw new Error('not a FARR Q backup');
+  const have=new Set(E.map(e=>e.kind+'|'+e.ts));
+  let added=0;
+  for(const line of lines){
+    const c=line.split(',');
+    if(window.farrImportExtra&&farrImportExtra(c))continue;
+    const kind=c[2], odo=parseFloat(c[3]), pct=parseFloat(c[4]), where=c[5]||'', ts=parseFloat(c[7]);
+    const carKm=c[6]===undefined||c[6]===''?null:parseFloat(c[6]);
+    if(!kind||isNaN(ts)||isNaN(odo)||isNaN(pct))continue;
+    const key=kind+'|'+ts;
+    if(have.has(key))continue;
+    const e={kind,ts,odo,pct};
+    if(kind==='charge'){if(where)e.where=where;else e.unlogged=true;}
+    if(carKm!==null&&!isNaN(carKm))e.carKm=carKm;
+    E.push(e);have.add(key);added++;
+  }
+  E.sort((a,b)=>a.ts-b.ts);
+  return added;
+}
+function importCSV(input){
+  const f=input.files&&input.files[0];
+  if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const n=mergeCSV(String(rd.result));
+      save();renderAll();
+      toast('Imported '+n+' new entries');
+      if(E.length)go('home');
+    }catch(e){toast('That file is not a FARR Q backup');}
+    input.value='';
+  };
+  rd.readAsText(f);
+}
+/* share */
+function setShare(btn){
+  sRange=btn.dataset.d==='all'?'all':btn.dataset.d==='today'?'today':+btn.dataset.d;
+  document.querySelectorAll('#shareChips .chip').forEach(c=>c.classList.toggle('on',c===btn));
+  renderShare();
+}
+function renderShare(){
+  const rows=rowsFor(sRange), s=summ(rows), st=carStats(rows);
+  const inc=id=>document.getElementById('inc_'+id).checked;
+  let pages=1;
+  if(inc('graph'))pages+=2;
+  if(inc('car')&&carStats(rows))pages+=1;
+  if(inc('trips'))pages+=Math.max(1,Math.ceil(s.trips/40))+1;
+  if(inc('charges'))pages+=Math.max(1,Math.ceil(s.charges/40));
+  if(inc('auto'))pages+=2;
+  if(inc('sheet'))pages+=1;
+  if(inc('method'))pages+=1;
+  if(inc('detail')){try{const n=(window.farr22?farr22.reportData(cutOf(sRange)).items.length:0);pages+=7+Math.ceil(n/2)+Math.ceil(n/30);}catch(e){pages+=7;}}
+  document.getElementById('sharePreview').innerHTML=
+    `<div class="label" style="margin-bottom:6px">Preview</div>`+
+    row('Period',periodName(sRange))+
+    row('Trips · km',s.trips+' · '+s.km.toFixed(1)+' km')+
+    row('Efficiency',s.eff==null?'--':s.eff.toFixed(1)+' kWh/100 km (claim '+S.claim.toFixed(1)+')')+
+    row('Charges · wall kWh',s.charges+' · '+s.wall.toFixed(2)+' kWh')+
+    row('Charging spend',money(s.cost))+
+    row('Car claim accuracy',st?st.accuracy.toFixed(1)+'%':'--')+
+    row('Petrol cost, same km ('+S.compare+' L/100 km)',s.km>0?money(s.km*S.compare/100*S.petrol):'--')+
+    row('Saving in Rands vs petrol car',(s.km>0&&s.perKm!=null)?money(s.km*S.compare/100*S.petrol-s.perKm*s.km):'--')+
+    row('Estimated PDF pages',pages);
+}
+async function makePdf(){
+  if(!window.jspdf||!window.jspdf.jsPDF)return toast('PDF tool did not load. Reopen the app and try again.');
+  const rows=rowsFor(sRange);
+  const pl=periodName(sRange);
+  const inc=id=>document.getElementById('inc_'+id).checked;
+  try{
+    try{if(window.farr22&&inc('detail')){toast('Reading charge detail from the Shelly…');await farr22.prepareReport(cutOf(sRange));}}catch(e){}
+    const doc=buildReport(window.jspdf.jsPDF,{rows,inc,periodLabel:pl,cut:cutOf(sRange)});
+    const blob=doc.output('blob');
+    const name='FARR_Q_report_'+dk(Date.now()).replace(/-/g,'_')+'.pdf';
+    const file=new File([blob],name,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],title:'PEMBA CHARGE report'});}catch(e){}
+    }else{
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();
+      toast('PDF saved to your downloads');
+    }
+  }catch(e){toast('Could not build the PDF: '+(e&&e.message?e.message:'unknown error'));}
+}
+
+async function importShared(){
+  const p=new URLSearchParams(location.search);
+  if(!p.has('shared'))return;
+  history.replaceState(null,'',location.pathname);
+  try{
+    const c=await caches.open('farrq-share');
+    const hit=await c.match('backup');
+    if(!hit){toast('That file did not come through. Try sharing it again.');return;}
+    const text=await hit.text();
+    await c.delete('backup');
+    const n=mergeCSV(text);
+    save();renderAll();
+    toast('Imported '+n+' new entries');
+    go('home');
+  }catch(e){toast('That file is not a FARR Q backup');}
+}
+async function sendText(){
+  const text=csvText();
+  if(navigator.share){
+    try{await navigator.share({text,title:'FARR Q backup'});return;}catch(e){if(e&&e.name==='AbortError')return;}
+  }
+  try{await navigator.clipboard.writeText(text);toast('Backup copied. Paste it into WhatsApp.');}
+  catch(e){toast('Could not send or copy the backup.');}
+}
+function togglePaste(){
+  const b=document.getElementById('pasteBox');
+  const open=b.style.display==='none';
+  b.style.display=open?'block':'none';
+  if(open)document.getElementById('pasteText').focus();
+}
+function importPasted(){
+  const box=document.getElementById('pasteText');
+  const t=box.value.trim();
+  if(!t){toast('Paste the backup text first');return;}
+  try{
+    const n=mergeCSV(t);
+    save();renderAll();
+    box.value='';
+    document.getElementById('pasteBox').style.display='none';
+    toast('Imported '+n+' new entries');
+    go('home');
+  }catch(e){toast('That is not a FARR Q backup. Copy the whole message.');}
+}
+function renderAll(){renderHome();renderHist();renderGraph();renderShare();renderSettings();}
+
+load();
+applyTheme();
+renderAll();
+go('home');
+importShared();
+</script>
+<script src="farrq-22.js"></script>
+<script src="pemba-1.js"></script>
+</body>
+</html>
